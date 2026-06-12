@@ -1,0 +1,622 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Xiaoxuan (Cleo) Xu</title>
+  <style>
+    :root {
+      --ink: #1f2933;
+      --muted: #5f6f69;
+      --accent: #0f766e;
+      --accent-dark: #115e59;
+      --line: #d7dedb;
+      --soft: #f6f8f7;
+      --personal-bg: #f4f7fb;
+      --personal-line: #d7e2ef;
+      --paper: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      background: var(--paper);
+    }
+
+    a {
+      color: var(--accent-dark);
+    }
+
+    .site-header {
+      border-bottom: 1px solid var(--line);
+      background: #ffffff;
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+
+    .nav {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .brand {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .links {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+      font-size: 14px;
+    }
+
+    .links a {
+      color: var(--ink);
+      text-decoration: none;
+    }
+
+    .hero {
+      background: var(--soft);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .hero-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 72px 24px 56px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(260px, 0.7fr);
+      gap: 48px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      margin: 0 0 14px;
+      color: var(--accent-dark);
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(42px, 7vw, 76px);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .bio {
+      margin: 24px 0 0;
+      max-width: 780px;
+      font-size: 17px;
+    }
+
+    .bio p {
+      margin: 0 0 12px;
+    }
+
+    .bio p:last-child {
+      margin-bottom: 0;
+    }
+
+    .hero-line {
+      width: min(420px, 100%);
+      height: 1px;
+      margin-top: 24px;
+      background: var(--accent);
+      opacity: 0.55;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 10px 16px;
+      border-radius: 6px;
+      border: 1px solid var(--accent);
+      color: var(--accent-dark);
+      text-decoration: none;
+      font-weight: 700;
+      background: #ffffff;
+    }
+
+    .button.primary {
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    .portrait {
+      min-height: 330px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: #ffffff;
+      overflow: hidden;
+    }
+
+    .portrait img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      min-height: 330px;
+      object-fit: cover;
+      object-position: center 40%;
+    }
+
+    section {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 56px 24px;
+    }
+
+    .section-title {
+      margin: 0 0 16px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 34px;
+      letter-spacing: 0;
+    }
+
+    .section-intro {
+      margin: 0 0 28px;
+      max-width: 100%;
+      color: var(--muted);
+      font-size: 17px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 22px;
+      background: #ffffff;
+    }
+
+    .card h3 {
+      margin: 0 0 10px;
+      min-height: 48px;
+      font-size: 19px;
+      line-height: 1.25;
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .research-grid .card {
+      background: var(--soft);
+    }
+
+    .paper-list {
+      display: grid;
+      gap: 18px;
+    }
+
+    .paper {
+      border-left: 4px solid var(--accent);
+      padding: 4px 0 4px 18px;
+    }
+
+    .paper h3 {
+      margin: 0 0 6px;
+      font-size: 22px;
+    }
+
+    .authors,
+    .status {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .paper .desc {
+      margin: 10px 0 0;
+      max-width: 900px;
+    }
+
+    .band {
+      max-width: none;
+      background: var(--soft);
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0;
+    }
+
+    .band-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 52px 24px;
+    }
+
+    .news {
+      margin: 0;
+      padding-left: 20px;
+      color: var(--ink);
+    }
+
+    .news li {
+      margin-bottom: 8px;
+    }
+
+    .presentation-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .presentation-item {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px 20px;
+      background: #ffffff;
+      display: grid;
+      grid-template-columns: 76px minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .presentation-year {
+      color: var(--accent-dark);
+      font-weight: 700;
+    }
+
+    .presentation-title {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .presentation-venue {
+      margin: 5px 0 0;
+      color: var(--muted);
+    }
+
+    .resource-link {
+      display: inline-flex;
+      align-items: center;
+      margin-top: 14px;
+      color: var(--accent-dark);
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .subsection-title {
+      margin: 36px 0 14px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 25px;
+      letter-spacing: 0;
+    }
+
+    .personal-band {
+      max-width: none;
+      background: var(--personal-bg);
+      border-top: 1px solid var(--personal-line);
+      border-bottom: 1px solid var(--personal-line);
+      padding: 0;
+    }
+
+    .personal-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .personal-card {
+      background: transparent;
+      border: 0;
+    }
+
+    .personal-photo {
+      aspect-ratio: 3 / 2;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #f7f9fb;
+    }
+
+    .personal-photo img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+    }
+
+    .personal-card-content {
+      padding: 16px 2px 0;
+    }
+
+    .personal-card h3 {
+      margin: 0 0 8px;
+      font-size: 19px;
+      line-height: 1.25;
+    }
+
+    .personal-card p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    footer {
+      border-top: 1px solid var(--line);
+      padding: 28px 24px;
+      color: var(--muted);
+    }
+
+    .footer-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 820px) {
+      .nav {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .hero-inner {
+        grid-template-columns: 1fr;
+        padding-top: 48px;
+      }
+
+      .portrait {
+        min-height: 220px;
+      }
+
+      .portrait img {
+        min-height: 260px;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .card h3 {
+        min-height: 0;
+      }
+
+      .personal-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .presentation-item {
+        grid-template-columns: 1fr;
+        gap: 6px;
+      }
+    }
+  </style>
+</head>
+<body id="top">
+  <header class="site-header">
+    <nav class="nav" aria-label="Site navigation">
+      <div class="brand">Xiaoxuan (Cleo) Xu 许小瑄</div>
+      <div class="links">
+        <a href="#top">Home</a>
+        <a href="#research">Research</a>
+        <a href="#teaching">Teaching</a>
+        <a href="#personal">Personal</a>
+        <a href="cv.html">CV</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <div class="hero">
+      <div class="hero-inner">
+        <div>
+          <p class="eyebrow">PhD Candidate in Information Systems and Analytics</p>
+          <h1>Xiaoxuan (Cleo) Xu</h1>
+          <div class="hero-line" aria-hidden="true"></div>
+          <div class="bio">
+            <p>I am a PhD candidate in Business Administration with a concentration in Information Systems and Analytics at Stevens Institute of Technology. My research uses computational social science, natural language processing, and large language models, paired with human-centered analysis, to study how digital communities communicate, organize, and make meaning.</p>
+            <p>Before my PhD, I trained in media, culture, and communication at New York University and advertising at Minzu University of China, with prior industry experience in publishing, marketing, and financial news. Outside academia, cats, sports, and movies keep me grounded.</p>
+          </div>
+        </div>
+        <div class="portrait">
+          <img src="assets/images/profile.jpg" alt="Xiaoxuan (Cleo) Xu">
+        </div>
+      </div>
+    </div>
+
+    <section id="research">
+      <h2 class="section-title">Research</h2>
+      <p class="section-intro">My work studies how people, organizations, and communities create cultural meaning, coordinate action, and communicate in platform-mediated social and economic life. I use state-of-the-art computational methods to examine how discourse, narratives, and collective signals emerge from large-scale digital traces and inform organizational decisions, market dynamics, and societal understanding.</p>
+      <div class="grid research-grid">
+        <article class="card">
+          <h3>Online Communities and Platforms</h3>
+          <p>Group dynamics, content moderation, and platform governance.</p>
+        </article>
+        <article class="card">
+          <h3>Multimodal Digital Discourse</h3>
+          <p>Podcasts, audio narratives, text, and computational approaches to culture and storytelling.</p>
+        </article>
+        <article class="card">
+          <h3>Computational Social Science</h3>
+          <p>NLP, LLMs, embeddings, causal inference, econometrics, and network analysis.</p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="section-title">Papers</h2>
+      <div class="paper-list">
+        <article class="paper">
+          <h3>The Deplatforming Paradox</h3>
+          <p class="authors">Xiaoxuan Xu, Jingyi Sun, Feng Mai</p>
+          <p class="status">Major revision at MIS Quarterly. Presented at INFORMS 2023.</p>
+          <p class="desc">Examines hidden bias spillovers from deplatformed communities using word embedding association methods.</p>
+        </article>
+        <article class="paper">
+          <h3>A Podcast Analytics Approach for Decoding Entrepreneurial Storytelling</h3>
+          <p class="authors">Xiaoxuan Xu, Jingyi Sun, Feng Mai</p>
+          <p class="status">Presented at WITS 2025 and Computational Methods in Management Research Workshop 2026.</p>
+          <p class="desc">Develops an LLM-based rhetorical structure parsing pipeline to quantify narrative structures from podcast audio.</p>
+        </article>
+        <article class="paper">
+          <h3>When Communities Watch: Locational Public Discourse and Municipal Bond Markets</h3>
+          <p class="authors">Xiaoxuan Xu, Jingyi Sun, Feng Mai</p>
+          <p class="status">Work in progress.</p>
+          <p class="desc">Links geo-locational community discourse to municipal fiscal health through NLP-extracted soft information.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="teaching" class="band">
+      <div class="band-inner">
+        <h2 class="section-title">Teaching</h2>
+        <p class="section-intro">My teaching interests include business analytics, machine learning, artificial intelligence and its business applications. In the classroom, I aim to help students reason critically about technology while building practical analytical skills they can use with confidence.</p>
+        <div class="grid">
+          <article class="card">
+            <h3>BIA 568: Management of A.I. Technologies</h3>
+            <p>Instructor, scheduled Fall 2026. A graduate course on strategic deployment, algorithmic governance, and ethical evaluation of enterprise AI.</p>
+          </article>
+          <article class="card">
+            <h3>BIA 660: Web Mining</h3>
+            <p>Teaching assistant, three terms. Led Python labs on NLP and LLM methods.</p>
+            <a class="resource-link" href="assets/files/bia660_intro_to_llm.html" download>LLM teaching demo</a>
+          </article>
+          <article class="card">
+            <h3>Analytics Courses</h3>
+            <p>TA for social network analytics, optimization, and multivariate data analysis.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="section-title">Presentations</h2>
+      <div class="presentation-list">
+        <article class="presentation-item">
+          <div class="presentation-year">2026</div>
+          <div>
+            <p class="presentation-title">People + Machine Workshop</p>
+            <p class="presentation-venue">PhD Student Lightning Talks, Stevens Institute of Technology, Hoboken, NJ</p>
+          </div>
+        </article>
+        <article class="presentation-item">
+          <div class="presentation-year">2026</div>
+          <div>
+            <p class="presentation-title">PDW @ Computational Methods in Management Research Workshop</p>
+            <p class="presentation-venue">University of Notre Dame, South Bend, IN</p>
+          </div>
+        </article>
+        <article class="presentation-item">
+          <div class="presentation-year">2026</div>
+          <div>
+            <p class="presentation-title">PhD Research Showcase Day</p>
+            <p class="presentation-venue">Stevens Institute of Technology, Hoboken, NJ</p>
+          </div>
+        </article>
+        <article class="presentation-item">
+          <div class="presentation-year">2025</div>
+          <div>
+            <p class="presentation-title">The 35th Workshop on Information Technologies and Systems (WITS 2025)</p>
+            <p class="presentation-venue">Nashville, TN</p>
+          </div>
+        </article>
+        <article class="presentation-item">
+          <div class="presentation-year">2025</div>
+          <div>
+            <p class="presentation-title">School of Business IS&amp;A Research Seminar</p>
+            <p class="presentation-venue">Stevens Institute of Technology, Hoboken, NJ</p>
+          </div>
+        </article>
+        <article class="presentation-item">
+          <div class="presentation-year">2024</div>
+          <div>
+            <p class="presentation-title">MIS Quarterly Author Development Workshop</p>
+            <p class="presentation-venue">Virtual</p>
+          </div>
+        </article>
+        <article class="presentation-item">
+          <div class="presentation-year">2023</div>
+          <div>
+            <p class="presentation-title">INFORMS Annual Meeting</p>
+            <p class="presentation-venue">Phoenix, AZ</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="personal" class="personal-band">
+      <div class="band-inner">
+        <h2 class="section-title">Personal</h2>
+        <p class="section-intro">Besides research, I'm usually wrangling my infant son, keeping my cat full & entertained, working out on a court or in the gym.</p>
+        <div class="personal-grid">
+          <article class="personal-card">
+            <div class="personal-photo"><img src="assets/images/home.jpg" alt="Orange American shorthair cat"></div>
+            <div class="personal-card-content">
+              <h3>Furry Friend</h3>
+              <p>At home, I share life with an orange tabby (American shorthair), who brings a lot of calm and joy to my everyday routine.</p>
+            </div>
+          </article>
+          <article class="personal-card">
+            <div class="personal-photo"><img src="assets/images/family.jpg" alt="Xiaoxuan Xu's baby boy"></div>
+            <div class="personal-card-content">
+              <h3>A New Role</h3>
+              <p>I recently became a mom. I am learning, day by day, how to care, adapt, work more efficiently, and grow with my baby boy.</p>
+            </div>
+          </article>
+          <article class="personal-card">
+            <div class="personal-photo"><img src="assets/images/movement.jpg" alt="Xiaoxuan Xu after finishing a half marathon"></div>
+            <div class="personal-card-content">
+              <h3>Stay Active</h3>
+              <p>Exercise and challenging myself make me feel present. I enjoy running, court games, and going to the gym. I completed a half marathon within six months postpartum.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer id="contact">
+    <div class="footer-inner">
+      <div>
+        <strong>Xiaoxuan (Cleo) Xu</strong><br>
+        School of Business, Stevens Institute of Technology
+      </div>
+      <div>
+        <a href="mailto:xxu62@stevens.edu">xxu62@stevens.edu</a><br>
+        <a href="https://linkedin.com/in/cleo-xu-420043248">LinkedIn</a><br>
+        <a href="https://scholar.google.com/citations?user=s4KjiQsAAAAJ&amp;hl=en&amp;authuser=1">Google Scholar</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

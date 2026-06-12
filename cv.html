@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CV - Xiaoxuan (Cleo) Xu</title>
+  <style>
+    :root {
+      --ink: #1f2933;
+      --muted: #5f6f69;
+      --accent: #0f766e;
+      --accent-dark: #115e59;
+      --line: #d7dedb;
+      --soft: #f6f8f7;
+      --paper: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      background: var(--paper);
+    }
+
+    a {
+      color: var(--accent-dark);
+    }
+
+    .site-header {
+      border-bottom: 1px solid var(--line);
+      background: #ffffff;
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+
+    .nav {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .brand {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .links {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+      font-size: 14px;
+    }
+
+    .links a {
+      color: var(--ink);
+      text-decoration: none;
+    }
+
+    .links a.current {
+      color: var(--accent-dark);
+      font-weight: 700;
+    }
+
+    .cv-hero {
+      background: var(--soft);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .cv-hero-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 64px 24px 48px;
+    }
+
+    .eyebrow {
+      margin: 0 0 14px;
+      color: var(--accent-dark);
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(42px, 7vw, 72px);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 10px 16px;
+      border-radius: 6px;
+      border: 1px solid var(--accent);
+      color: var(--accent-dark);
+      text-decoration: none;
+      font-weight: 700;
+      background: #ffffff;
+    }
+
+    .button.primary {
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    main {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 48px 24px 64px;
+    }
+
+    .cv-section {
+      display: grid;
+      grid-template-columns: 210px minmax(0, 1fr);
+      gap: 36px;
+      padding: 34px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .cv-section:first-child {
+      padding-top: 0;
+    }
+
+    .cv-section h2 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 26px;
+      letter-spacing: 0;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .info-item {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      background: #ffffff;
+    }
+
+    .label {
+      margin: 0 0 4px;
+      color: var(--muted);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      font-weight: 700;
+    }
+
+    .value {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 20px;
+    }
+
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 150px minmax(0, 1fr);
+      gap: 18px;
+    }
+
+    .date {
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .timeline-item h3 {
+      margin: 0 0 4px;
+      font-size: 19px;
+      line-height: 1.25;
+    }
+
+    .timeline-item p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .tag-list li {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 7px 11px;
+      background: var(--soft);
+      color: var(--ink);
+      font-size: 14px;
+    }
+
+    .simple-list {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .simple-list li {
+      margin-bottom: 8px;
+    }
+
+    footer {
+      border-top: 1px solid var(--line);
+      padding: 28px 24px;
+      color: var(--muted);
+    }
+
+    .footer-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 820px) {
+      .nav {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .cv-section,
+      .timeline-item {
+        grid-template-columns: 1fr;
+      }
+
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="nav" aria-label="Site navigation">
+      <div class="brand">Xiaoxuan (Cleo) Xu 许小瑄</div>
+      <div class="links">
+        <a href="index.html#top">Home</a>
+        <a href="index.html#research">Research</a>
+        <a href="index.html#teaching">Teaching</a>
+        <a href="index.html#personal">Personal</a>
+        <a class="current" href="cv.html">CV</a>
+      </div>
+    </nav>
+  </header>
+
+  <div class="cv-hero">
+    <div class="cv-hero-inner">
+      <p class="eyebrow">Web CV</p>
+      <h1>Curriculum Vitae</h1>
+      <div class="button-row">
+        <a class="button primary" href="assets/files/xiaoxuan_cv_202606.pdf" download>Download</a>
+        <a class="button" href="assets/files/xiaoxuan_cv_202606.pdf">Open PDF</a>
+      </div>
+    </div>
+  </div>
+
+  <main>
+    <section class="cv-section">
+      <h2>Profile</h2>
+      <div class="info-grid">
+        <div class="info-item">
+          <p class="label">Name</p>
+          <p class="value">Xiaoxuan (Cleo) Xu 许小瑄</p>
+        </div>
+        <div class="info-item">
+          <p class="label">School</p>
+          <p class="value">School of Business, Stevens Institute of Technology</p>
+        </div>
+        <div class="info-item">
+          <p class="label">Concentration</p>
+          <p class="value">Information Systems &amp; Analytics</p>
+        </div>
+        <div class="info-item">
+          <p class="label">Email</p>
+          <p class="value"><a href="mailto:xxu62@stevens.edu">xxu62@stevens.edu</a></p>
+        </div>
+        <div class="info-item">
+          <p class="label">LinkedIn</p>
+          <p class="value"><a href="https://linkedin.com/in/cleo-xu-420043248">linkedin.com/in/cleo-xu</a></p>
+        </div>
+        <div class="info-item">
+          <p class="label">Google Scholar</p>
+          <p class="value"><a href="https://scholar.google.com/citations?user=s4KjiQsAAAAJ&amp;hl=en&amp;authuser=1">Profile</a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="cv-section">
+      <h2>Education</h2>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="date">2023-May 2027</div>
+          <div>
+            <h3>Ph.D. in Business Administration</h3>
+            <p>Stevens Institute of Technology, Hoboken, NJ.</p>
+            <p>Dissertation: Computational Frameworks for Multimodal Digital Discourse: Essays on Platforms, Podcasts, and Places.</p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="date">2018-2020</div>
+          <div>
+            <h3>M.A. in Media, Culture, and Communication</h3>
+            <p>New York University, New York, NY.</p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="date">2014-2018</div>
+          <div>
+            <h3>B.A. in Advertising</h3>
+            <p>Minzu University of China, Beijing, China.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cv-section">
+      <h2>Skills</h2>
+      <div>
+        <p class="label">Programming &amp; Tools</p>
+        <ul class="tag-list">
+          <li>Python</li>
+          <li>R</li>
+          <li>Stata</li>
+          <li>SQL</li>
+          <li>LaTeX</li>
+        </ul>
+
+        <p class="label" style="margin-top: 22px;">AI, NLP &amp; Analytics</p>
+        <ul class="tag-list">
+          <li>Natural Language Processing</li>
+          <li>Large Language Models</li>
+          <li>RAG</li>
+          <li>Fine-tuning</li>
+          <li>API Workflows</li>
+          <li>Transformer Models</li>
+          <li>Econometrics</li>
+          <li>Causal Inference</li>
+          <li>Machine Learning</li>
+          <li>Network Analysis</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="cv-section">
+      <h2>Languages</h2>
+      <ul class="simple-list">
+        <li>Mandarin Chinese: Native</li>
+        <li>English: Fluent</li>
+        <li>Japanese: Basic</li>
+      </ul>
+    </section>
+
+    <section class="cv-section">
+      <h2>Honors &amp; Awards</h2>
+      <ul class="simple-list">
+        <li>2026: Doctoral Consortium Fellow, AOM CTO Division.</li>
+        <li>2026: FutureBAProf, Tippie College of Business, University of Iowa.</li>
+        <li>2024-2025: Graduate Conference Funding, Stevens Institute of Technology.</li>
+        <li>2024: MIS Quarterly Author Development Workshop Selected Attendee.</li>
+        <li>2022: Provost Doctoral Fellowship, Stevens Institute of Technology.</li>
+        <li>2019: The Conference Fund, New York University.</li>
+        <li>2019: Global Study Scholarship, New York University.</li>
+        <li>2018: MUFG Bank Scholarship, Minzu University of China.</li>
+        <li>2014-2017: First-Class Academic Scholarship, Minzu University of China.</li>
+        <li>2016: CCTV 2nd National Public Service Advertising Competition, Silver Award.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <div>
+        <strong>Xiaoxuan (Cleo) Xu</strong><br>
+        School of Business, Stevens Institute of Technology
+      </div>
+      <div>
+        <a href="mailto:xxu62@stevens.edu">xxu62@stevens.edu</a><br>
+        <a href="https://linkedin.com/in/cleo-xu-420043248">LinkedIn</a><br>
+        <a href="https://scholar.google.com/citations?user=s4KjiQsAAAAJ&amp;hl=en&amp;authuser=1">Google Scholar</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
