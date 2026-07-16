@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BIA 660 · Introduction to LLMs — Interactive Lab</title>
+<meta name="description" content="Interactive companion to the BIA 660 (Web Mining) lab on using large language models for text analysis. All model outputs are from a real run of the lab.">
+<style>
+/* ---------- tokens (light) ---------- */
+:root{
+  color-scheme: light;
+  --page:#f9f9f7; --surface:#fcfcfb; --surface2:#f3f2ee;
+  --ink:#0b0b0b; --ink2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --baseline:#c3c2b7; --hairline:rgba(11,11,11,.10);
+  --accent:#2a78d6; --accent-ink:#1c5cab;
+  --s-blue:#2a78d6; --s-green:#008300; --s-red:#e34948;
+  --seq-100:#cde2fb; --seq-250:#86b6ef; --seq-400:#3987e5; --seq-550:#1c5cab; --seq-700:#0d366b;
+  --pos:#2a78d6; --neg:#e34948; --mix:#52514e;
+  --pos-bg:rgba(42,120,214,.10); --neg-bg:rgba(227,73,72,.10); --mix-bg:rgba(82,81,78,.10);
+  --warn-bg:#fdf6e7; --warn-edge:#eda100; --ok-bg:#eef6ee; --ok-edge:#008300;
+  --code-bg:#f6f5f1; --shadow:0 1px 2px rgba(11,11,11,.04),0 4px 16px rgba(11,11,11,.05);
+}
+@media (prefers-color-scheme: dark){
+  :root:where(:not([data-theme="light"])){
+    color-scheme: dark;
+    --page:#0d0d0d; --surface:#1a1a19; --surface2:#222220;
+    --ink:#ffffff; --ink2:#c3c2b7; --muted:#898781;
+    --grid:#2c2c2a; --baseline:#383835; --hairline:rgba(255,255,255,.10);
+    --accent:#3987e5; --accent-ink:#86b6ef;
+    --s-blue:#3987e5; --s-green:#008300; --s-red:#e66767;
+    --pos:#3987e5; --neg:#e66767; --mix:#c3c2b7;
+    --pos-bg:rgba(57,135,229,.16); --neg-bg:rgba(230,103,103,.16); --mix-bg:rgba(195,194,183,.12);
+    --warn-bg:#2a2416; --warn-edge:#c98500; --ok-bg:#16241a; --ok-edge:#0ca30c;
+    --code-bg:#151514; --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --page:#0d0d0d; --surface:#1a1a19; --surface2:#222220;
+  --ink:#ffffff; --ink2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --baseline:#383835; --hairline:rgba(255,255,255,.10);
+  --accent:#3987e5; --accent-ink:#86b6ef;
+  --s-blue:#3987e5; --s-green:#008300; --s-red:#e66767;
+  --pos:#3987e5; --neg:#e66767; --mix:#c3c2b7;
+  --pos-bg:rgba(57,135,229,.16); --neg-bg:rgba(230,103,103,.16); --mix-bg:rgba(195,194,183,.12);
+  --warn-bg:#2a2416; --warn-edge:#c98500; --ok-bg:#16241a; --ok-edge:#0ca30c;
+  --code-bg:#151514; --shadow:none;
+}
+
+/* ---------- base ---------- */
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; background:var(--page); color:var(--ink);
+  font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:960px;margin:0 auto;padding:0 20px}
+a{color:var(--accent-ink)}
+h1,h2,h3{line-height:1.25}
+code,pre,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+code{background:var(--code-bg);border:1px solid var(--hairline);border-radius:4px;padding:.08em .35em;font-size:.86em}
+pre code{background:none;border:none;padding:0;font-size:inherit}
+
+/* ---------- header ---------- */
+header.hero{padding:44px 0 10px}
+.kicker{font-size:.78rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+header.hero h1{font-size:clamp(1.5rem,4vw,2.1rem);margin:.35rem 0 .4rem;font-weight:700}
+.byline{color:var(--ink2);font-size:.95rem;margin:0}
+.metachips{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 0;padding:0;list-style:none}
+.metachips li{font-size:.8rem;color:var(--ink2);background:var(--surface);border:1px solid var(--hairline);border-radius:999px;padding:3px 12px}
+.headrow{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+#themeBtn{flex:none;background:var(--surface);border:1px solid var(--hairline);color:var(--ink2);border-radius:999px;padding:6px 14px;font-size:.8rem;cursor:pointer}
+#themeBtn:hover{color:var(--ink)}
+
+/* ---------- tabs ---------- */
+nav.tabs{position:sticky;top:0;z-index:40;background:var(--page);border-bottom:1px solid var(--grid);margin-top:22px}
+nav.tabs .row{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+nav.tabs .row::-webkit-scrollbar{display:none}
+.tab{appearance:none;background:none;border:none;border-bottom:2px solid transparent;
+  padding:12px 13px 10px;font:inherit;font-size:.88rem;color:var(--ink2);cursor:pointer;white-space:nowrap}
+.tab .n{font-size:.72rem;color:var(--muted);margin-right:6px;font-weight:600}
+.tab:hover{color:var(--ink)}
+.tab[aria-selected="true"]{color:var(--ink);font-weight:600;border-bottom-color:var(--accent)}
+
+/* ---------- panels & cards ---------- */
+section.panel{display:none;padding:30px 0 10px}
+section.panel.active{display:block}
+.panel h2{font-size:1.35rem;margin:0 0 4px}
+.panel .lede{color:var(--ink2);margin:0 0 22px;max-width:64ch}
+.card{background:var(--surface);border:1px solid var(--hairline);border-radius:12px;padding:18px 20px;margin:0 0 16px;box-shadow:var(--shadow)}
+.card h3{margin:0 0 8px;font-size:1.02rem}
+.card h4{margin:16px 0 6px;font-size:.92rem}
+.cardlabel{font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:720px){.grid2{grid-template-columns:1fr}}
+
+/* prompt + output blocks */
+.prompt-card{background:var(--surface2);border:1px solid var(--hairline);border-radius:8px;padding:12px 14px;font-size:.86rem;color:var(--ink2);white-space:pre-wrap}
+.output{background:var(--code-bg);border:1px solid var(--hairline);border-left:3px solid var(--accent);
+  border-radius:8px;padding:12px 14px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:.8rem;line-height:1.55;white-space:pre-wrap;overflow-x:auto}
+.reveal{display:none;margin-top:12px}
+.reveal.show{display:block;animation:rise .35s ease}
+@keyframes rise{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+/* buttons */
+.btn{appearance:none;border:none;border-radius:8px;padding:8px 16px;font:inherit;font-size:.88rem;font-weight:600;cursor:pointer}
+.btn.primary{background:var(--accent);color:#fff}
+.btn.primary:hover{background:var(--accent-ink)}
+.btn.primary:disabled{opacity:.55;cursor:default}
+.btn.ghost{background:var(--surface);border:1px solid var(--hairline);color:var(--ink2)}
+.btn.ghost:hover{color:var(--ink)}
+.runrow{display:flex;align-items:center;gap:12px;margin-top:14px;flex-wrap:wrap}
+.runnote{font-size:.78rem;color:var(--muted)}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid var(--grid);border-top-color:var(--accent);border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* segmented control */
+.seg{display:inline-flex;background:var(--surface2);border:1px solid var(--hairline);border-radius:9px;padding:3px;gap:2px;flex-wrap:wrap}
+.seg button{appearance:none;border:none;background:none;border-radius:6px;padding:6px 13px;font:inherit;font-size:.83rem;color:var(--ink2);cursor:pointer;white-space:nowrap}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);font-weight:600;box-shadow:0 1px 3px rgba(11,11,11,.12)}
+
+/* sub-tabs */
+.subtabs{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 20px}
+.subtabs button{appearance:none;border:1px solid var(--hairline);background:var(--surface);border-radius:999px;
+  padding:5px 13px;font:inherit;font-size:.82rem;color:var(--ink2);cursor:pointer}
+.subtabs button:hover{color:var(--ink)}
+.subtabs button[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.subpanel{display:none}
+.subpanel.active{display:block;animation:rise .3s ease}
+
+/* code details */
+details.code{margin-top:12px;border:1px solid var(--hairline);border-radius:8px;background:var(--surface)}
+details.code summary{cursor:pointer;padding:8px 14px;font-size:.8rem;color:var(--ink2);font-weight:600;list-style:none}
+details.code summary::before{content:"▸ ";color:var(--muted)}
+details.code[open] summary::before{content:"▾ "}
+details.code pre{margin:0;padding:12px 14px;border-top:1px solid var(--hairline);background:var(--code-bg);
+  font-size:.76rem;line-height:1.55;overflow-x:auto;border-radius:0 0 8px 8px}
+
+/* badges & chips */
+.badge{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.04em;border-radius:5px;padding:1px 8px;vertical-align:1px}
+.badge.pos{color:var(--pos);background:var(--pos-bg)}
+.badge.neg{color:var(--neg);background:var(--neg-bg)}
+.badge.mix{color:var(--mix);background:var(--mix-bg)}
+.badge.hi{color:var(--ok-edge);background:var(--ok-bg)}
+.badge.lo{color:var(--warn-edge);background:var(--warn-bg)}
+.chip{display:inline-block;background:var(--surface2);border:1px solid var(--hairline);border-radius:999px;
+  padding:2px 11px;font-size:.8rem;color:var(--ink2);margin:2px 2px}
+.chips{line-height:2}
+
+/* callouts (lab notes) */
+.note{border-radius:8px;padding:11px 14px;margin:14px 0 0;font-size:.88rem}
+.note.ok{background:var(--ok-bg);border-left:3px solid var(--ok-edge)}
+.note.warn{background:var(--warn-bg);border-left:3px solid var(--warn-edge)}
+.note b{font-weight:700}
+
+/* tables */
+table.clean{width:100%;border-collapse:collapse;font-size:.85rem;margin:10px 0 4px}
+table.clean th{text-align:left;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);
+  font-weight:600;padding:7px 10px;border-bottom:1px solid var(--baseline)}
+table.clean td{padding:8px 10px;border-bottom:1px solid var(--grid);vertical-align:top}
+table.clean tr:last-child td{border-bottom:none}
+table.clean td.num{font-variant-numeric:tabular-nums;text-align:right}
+table.clean th.num{text-align:right}
+
+/* bar chart rows */
+.bars{margin-top:6px}
+.bar-row{display:grid;grid-template-columns:minmax(140px,2.2fr) 3fr 52px;gap:10px;align-items:center;padding:5px 0}
+.bar-label{font-size:.8rem;color:var(--ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar-track{height:14px;background:var(--surface2);border-radius:0 4px 4px 0;position:relative}
+.bar-fill{height:100%;background:var(--s-blue);border-radius:0 4px 4px 0;width:0;transition:width .6s cubic-bezier(.2,.7,.3,1)}
+.bar-val{font-size:.78rem;color:var(--ink2);font-variant-numeric:tabular-nums;text-align:right}
+.bar-row.best .bar-label{color:var(--ink);font-weight:600}
+
+/* paired persona bars */
+.pair-row{display:grid;grid-template-columns:64px 1fr 64px;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--grid)}
+.pair-row:last-child{border-bottom:none}
+.pair-name{font-size:.83rem;font-weight:600;color:var(--ink2);text-transform:capitalize}
+.pair-track{position:relative}
+.pair-bar{height:12px;border-radius:0 4px 4px 0;margin:3px 0;width:0;transition:width .6s cubic-bezier(.2,.7,.3,1);position:relative}
+.pair-bar.a{background:var(--s-blue)}
+.pair-bar.b{background:var(--s-green)}
+.pair-bar .v{position:absolute;right:-30px;top:-3px;font-size:.74rem;color:var(--ink2);font-variant-numeric:tabular-nums}
+.gapcell{font-size:.85rem;font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
+.legend{display:flex;gap:16px;font-size:.78rem;color:var(--ink2);margin:8px 0 2px;flex-wrap:wrap}
+.legend .key{display:inline-flex;align-items:center;gap:6px}
+.legend .sw{width:10px;height:10px;border-radius:3px;display:inline-block}
+
+/* confusion matrix */
+.cm{display:grid;grid-template-columns:auto auto auto;gap:2px;justify-content:start;margin-top:10px}
+.cm .h{font-size:.72rem;color:var(--muted);padding:6px 10px;align-self:end}
+.cm .cell{width:104px;height:64px;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
+.cm .cell b{font-size:1.15rem}
+.cm .cell span{font-size:.66rem;opacity:.85}
+@media(max-width:520px){.cm .cell{width:78px;height:56px}}
+
+/* stat tiles */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:6px 0 16px}
+.tile{background:var(--surface);border:1px solid var(--hairline);border-radius:12px;padding:14px 16px}
+.tile .tl{font-size:.76rem;color:var(--muted)}
+.tile .tv{font-size:1.65rem;font-weight:650;margin:2px 0 0}
+.tile .ts{font-size:.74rem;color:var(--ink2)}
+
+/* quiz */
+.quiz-item{padding:13px 0;border-bottom:1px solid var(--grid)}
+.quiz-item:last-child{border-bottom:none}
+.quiz-text{font-size:.9rem;margin:0 0 8px;color:var(--ink)}
+.quiz-ctrl{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.guess{appearance:none;border:1px solid var(--hairline);background:var(--surface);border-radius:999px;padding:3px 13px;
+  font:inherit;font-size:.78rem;font-weight:600;color:var(--ink2);cursor:pointer}
+.guess[aria-pressed="true"].p{background:var(--pos-bg);color:var(--pos);border-color:var(--pos)}
+.guess[aria-pressed="true"].n{background:var(--neg-bg);color:var(--neg);border-color:var(--neg)}
+.model-ans{display:none;gap:8px;flex-wrap:wrap;font-size:.76rem;color:var(--ink2);align-items:center}
+.model-ans.show{display:flex}
+
+/* votes */
+.vote-row{display:grid;grid-template-columns:96px 110px 1fr;gap:10px;align-items:center;padding:6px 0;border-bottom:1px solid var(--grid);font-size:.8rem}
+.vote-row:last-child{border-bottom:none}
+.vote-row .dots{display:flex;gap:5px}
+.dot{width:12px;height:12px;border-radius:50%;box-shadow:0 0 0 2px var(--surface)}
+.dot.p{background:var(--pos)}.dot.n{background:var(--neg)}
+.vote-row.miss{background:var(--warn-bg);border-radius:6px;padding:6px 8px;margin:0 -8px}
+
+/* json field provenance */
+.fieldlist{margin-top:4px}
+.field-row{display:flex;gap:10px;align-items:baseline;padding:6px 0;border-bottom:1px solid var(--grid);font-size:.82rem;flex-wrap:wrap}
+.field-row:last-child{border-bottom:none}
+.field-row .k{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.76rem;color:var(--ink2);min-width:220px}
+.field-row .v{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.78rem;font-weight:600}
+.field-row .v.null{color:var(--muted);font-weight:400}
+.prov{font-size:.68rem;font-weight:700;border-radius:4px;padding:1px 7px;letter-spacing:.03em}
+.prov.doc{color:var(--ok-edge);background:var(--ok-bg)}
+.prov.mem{color:var(--warn-edge);background:var(--warn-bg)}
+.prov.nul{color:var(--muted);background:var(--mix-bg)}
+
+/* evidence highlighting */
+.evtext mark{background:transparent;border-bottom:2px solid var(--baseline);color:inherit;transition:background .2s;border-radius:2px;padding:0 1px}
+.evtext mark.on{background:var(--pos-bg);border-bottom-color:var(--pos)}
+.evtext mark.on.negx{background:var(--neg-bg);border-bottom-color:var(--neg)}
+.aspect-row{display:grid;grid-template-columns:150px 90px 1fr;gap:10px;padding:7px 8px;border-radius:6px;font-size:.82rem;align-items:baseline;cursor:pointer;border-bottom:1px solid var(--grid)}
+.aspect-row:hover,.aspect-row.on{background:var(--surface2)}
+.aspect-row .a{font-weight:600}
+.aspect-row .e{color:var(--muted);font-size:.76rem;font-style:italic}
+@media(max-width:600px){.aspect-row{grid-template-columns:110px 80px 1fr}}
+
+/* run chips (temperature) */
+.runchips{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.runchip{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.78rem;border:1px solid var(--hairline);
+  border-radius:6px;padding:3px 10px;background:var(--surface)}
+.runchip.bad{border-color:var(--warn-edge);background:var(--warn-bg);font-weight:700}
+
+/* decision picker */
+.taskpick{display:flex;gap:7px;flex-wrap:wrap;margin:4px 0 14px}
+.taskpick button{appearance:none;border:1px solid var(--hairline);background:var(--surface);border-radius:999px;
+  padding:5px 13px;font:inherit;font-size:.8rem;color:var(--ink2);cursor:pointer}
+.taskpick button[aria-pressed="true"]{border-color:var(--accent);color:var(--accent-ink);background:var(--pos-bg);font-weight:600}
+.fitcard{display:none}
+.fitcard.show{display:block;animation:rise .3s ease}
+.fit-flag{font-size:.9rem;font-weight:700}
+
+/* next section */
+.nextrow{display:flex;justify-content:flex-end;margin:8px 0 26px}
+footer{border-top:1px solid var(--grid);margin-top:34px;padding:22px 0 44px;color:var(--muted);font-size:.8rem}
+footer p{margin:.3em 0}
+.skip{position:absolute;left:-9999px}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="wrap">
+
+<header class="hero">
+  <div class="headrow">
+    <div>
+      <p class="kicker">BIA 660 · Web Mining · Stevens Institute of Technology · Spring 2026</p>
+      <h1>Introduction to Large Language Models<br>— the interactive lab</h1>
+      <p class="byline">Python lab designed &amp; led by <strong>Xiaoxuan (Cleo) Xu</strong> · <a href="https://cleo-xu.github.io">cleo-xu.github.io</a></p>
+    </div>
+    <button id="themeBtn" title="Toggle color theme">◐ Theme</button>
+  </div>
+  <ul class="metachips">
+    <li>All outputs are from a real run — yours may differ, and noticing where is part of the lesson</li>
+    <li>llama3 via Ollama (local, free)</li>
+    <li>GPT-4o-mini · Claude · Gemini via API</li>
+    <li><a href="bia660_intro_to_llm.html">Run it yourself: the Jupyter notebook ↗</a></li>
+  </ul>
+</header>
+
+<nav class="tabs" aria-label="Lab sections">
+  <div class="row" role="tablist">
+    <button class="tab" role="tab" data-sec="ov"  aria-selected="true"><span class="n">☰</span>Overview</button>
+    <button class="tab" role="tab" data-sec="s0"><span class="n">§0</span>Setup</button>
+    <button class="tab" role="tab" data-sec="s1"><span class="n">§1</span>Four ways to call a model</button>
+    <button class="tab" role="tab" data-sec="s2"><span class="n">§2</span>Text analysis with LLMs</button>
+    <button class="tab" role="tab" data-sec="s3"><span class="n">§3</span>Where LLMs struggle</button>
+    <button class="tab" role="tab" data-sec="s4"><span class="n">§4</span>Evaluation</button>
+    <button class="tab" role="tab" data-sec="s5"><span class="n">§5</span>When to use an LLM</button>
+  </div>
+</nav>
+
+<main id="main">
+
+<!-- ================= OVERVIEW ================= -->
+<section class="panel active" data-panel="ov" role="tabpanel">
+  <h2>One session: from calling an API to auditing what it returns</h2>
+  <p class="lede">By this week, you have built the classical text-mining stack by hand — scraping, preprocessing,
+  classification, clustering, topic modeling, sentiment, word vectors. This lab asks one question of every technique:
+  <em>what does an LLM do differently, where does it win, and where does it fall over?</em></p>
+
+  <div class="grid2">
+    <div class="card">
+      <p class="cardlabel">How to use this page</p>
+      <p style="font-size:.9rem;margin:0">Work through the sections in order and press <strong>Run</strong> on each
+      demo. The outputs are not simulated — they come from a real run of the lab (a local llama3 via Ollama, plus
+      frontier models over API). Each demo keeps its real Python underneath — expand <em>“Show the code”</em>
+      anywhere, then open the <a href="bia660_intro_to_llm.html">notebook</a> and run it yourself: where your outputs
+      differ from these is worth a second look.</p>
+    </div>
+    <div class="card">
+      <p class="cardlabel">The lab in one arc</p>
+      <table class="clean" style="margin:0">
+        <tr><td style="width:38px"><b>§1</b></td><td>Call four providers with one identical prompt — APIs vs. a free local model</td></tr>
+        <tr><td><b>§2</b></td><td>Re-do six classic text-analysis tasks with an LLM, next to the traditional tool</td></tr>
+        <tr><td><b>§3</b></td><td>Break it: sarcasm, false confidence, and scores that follow the prompt, not the data</td></tr>
+        <tr><td><b>§4</b></td><td>Measure it: accuracy, reliability, agreement, robustness, LLM-as-judge</td></tr>
+        <tr><td><b>§5</b></td><td>Decide: a task-shape guide for when the LLM is the right tool</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="cardlabel">The habit this lab builds</p>
+    <p style="font-size:.9rem;margin:0">Every demo follows the same rhythm: <strong>observe</strong> the raw text,
+    <strong>execute</strong> a small step, <strong>compare</strong> outputs side by side, and <strong>question</strong>
+    the result — <em>does this make sense? what would change it?</em> The section that matters most is §3: you’ll first
+    watch the LLM succeed, then watch it fail in ways that look exactly like success. That contrast — not the API
+    syntax — is what you should carry into your project.</p>
+  </div>
+
+  <div class="nextrow"><button class="btn primary" data-goto="s0">Start the lab: §0 Setup →</button></div>
+</section>
+
+<!-- ================= §0 SETUP ================= -->
+<section class="panel" data-panel="s0" role="tabpanel">
+  <h2>§0 · Local LLM setup</h2>
+  <p class="lede">Everything in this lab runs free and offline on your laptop. Two pulls from
+  <a href="https://ollama.com">Ollama</a> and the environment is ready — no API key required to participate.</p>
+
+  <div class="card">
+    <p class="cardlabel">Install once</p>
+    <div class="output" style="border-left-color:var(--baseline)">ollama pull llama3            # chat model (~4.7 GB)
+ollama pull nomic-embed-text  # embedding model (~270 MB, used in §2.7)</div>
+    <div class="runrow">
+      <button class="btn primary" id="run-health">Run the health check</button>
+      <span class="runnote">runs <code>check_ollama()</code> — the first cell of the notebook</span>
+    </div>
+    <div class="reveal" id="rev-health"><div class="output mono" id="health-out"></div></div>
+    <details class="code"><summary>Show the code — the lab’s <code>chat()</code> helper</summary>
+<pre><code>import ollama, json, time, re
+DEFAULT_MODEL = "llama3"
+EMBED_MODEL   = "nomic-embed-text"
+
+# One helper, reused all session long
+def chat(prompt, system=None, model=DEFAULT_MODEL, temperature=0.0, fmt=None):
+    messages = ([{"role": "system", "content": system}] if system else [])
+    messages.append({"role": "user", "content": prompt})
+    kwargs = dict(model=model, messages=messages,
+                  options={"temperature": temperature})
+    if fmt == "json":
+        kwargs["format"] = "json"
+    return ollama.chat(**kwargs)["message"]["content"]</code></pre>
+    </details>
+  </div>
+  <div class="nextrow"><button class="btn primary" data-goto="s1">§1 Four ways to call a model →</button></div>
+</section>
+
+<!-- ================= §1 MODELS ================= -->
+<section class="panel" data-panel="s1" role="tabpanel">
+  <h2>§1 · One prompt, four providers</h2>
+  <p class="lede">Model <em>builders</em> vs. inference <em>providers</em>: the same model is often served in several
+  places at different speeds and prices. Send one identical prompt to OpenAI, Anthropic, Google, and a local llama3 —
+  and compare what comes back.</p>
+
+  <div class="card">
+    <p class="cardlabel">The shared prompt — a small financial-analysis task</p>
+    <div class="prompt-card">Act as a financial analyst. Based on the following metrics, provide a one-sentence conclusion starting with 'Signal: [Good/Bad/Neutral]' followed by the short reason why.
+
+Net sales increased 14% to $213.4 billion in the fourth quarter, compared with $187.8 billion in fourth quarter 2024. Operating income increased to $25.0 billion … Net income increased to $21.2 billion, or $1.95 per diluted share …</div>
+    <div class="runrow">
+      <div class="seg" id="provider-seg" role="group" aria-label="Choose a provider"></div>
+      <button class="btn ghost" id="compare-all">Compare all four</button>
+    </div>
+    <div id="provider-view" style="margin-top:14px"></div>
+  </div>
+
+  <div class="card">
+    <p class="cardlabel">A brief note on parameters</p>
+    <table class="clean">
+      <tr><th style="width:190px">Param</th><th>What it does</th></tr>
+      <tr><td><code>temperature</code></td><td>randomness — 0 = deterministic, 1+ = creative</td></tr>
+      <tr><td><code>top_p</code></td><td>nucleus sampling (alternative to temperature)</td></tr>
+      <tr><td><code>max_tokens</code></td><td>cap the output length</td></tr>
+      <tr><td><code>stop</code> / <code>stream</code> / <code>seed</code></td><td>end strings · stream tokens · best-effort reproducibility</td></tr>
+    </table>
+    <p style="font-size:.85rem;color:var(--ink2);margin:8px 0 0"><strong>Rule of thumb:</strong>
+    <code>temperature=0</code> for extraction and classification (most of this class), ≈0.7 for creative writing.
+    Parameters are tied to the <em>model</em>, not the company — reasoning models swap <code>temperature</code> for
+    <code>reasoning_effort</code>; embedding models take only <code>input</code>. Always check the current docs.</p>
+  </div>
+  <div class="nextrow"><button class="btn primary" data-goto="s2">§2 Text analysis with LLMs →</button></div>
+</section>
+<!-- ================= §2 TEXT ANALYSIS ================= -->
+<section class="panel" data-panel="s2" role="tabpanel">
+  <h2>§2 · Six classic tasks, redone with an LLM</h2>
+  <p class="lede">Each demo pairs a technique you have already built by hand with its LLM counterpart — and ends with
+  what to watch out for. Work left to right.</p>
+
+  <div class="subtabs" role="tablist" aria-label="Section 2 demos">
+    <button role="tab" data-sub="s2-1" aria-selected="true">2.1 Extraction &amp; NER</button>
+    <button role="tab" data-sub="s2-2">2.2 Zero-shot classification</button>
+    <button role="tab" data-sub="s2-3">2.3 Reproducibility</button>
+    <button role="tab" data-sub="s2-4">2.4 Majority voting</button>
+    <button role="tab" data-sub="s2-5">2.5 Topic labeling</button>
+    <button role="tab" data-sub="s2-6">2.6 Aspect sentiment</button>
+    <button role="tab" data-sub="s2-7">2.7 Embeddings</button>
+  </div>
+
+  <!-- 2.1 -->
+  <div class="subpanel active" data-subpanel="s2-1">
+    <div class="card">
+      <h3>One prompt replaces the whole NLTK pipeline</h3>
+      <p style="font-size:.9rem;color:var(--ink2)">Prior lectures: tokenization → POS → NER → regex, all hand-rolled.
+      With an LLM: describe the schema you want, in words.</p>
+      <p class="cardlabel">Input — a raw job post</p>
+      <div class="prompt-card">Avery Dennison is looking for a Materials Scientist - Machine Learning.
+Requirements: Ph.D. in Polymer Science, Chemical Engineering, or Physics. Experience with Python, TensorFlow, PyTorch, C++. Familiarity with Molecular Dynamics and Finite Element Analysis. Location: Mentor, OH. Contact: xxx@stevens.edu</div>
+      <div class="runrow">
+        <button class="btn primary" data-run="rev-ner">Extract entities (llama3, JSON mode)</button>
+      </div>
+      <div class="reveal" id="rev-ner">
+        <div class="output">{"company": "Avery Dennison",
+ "job_title": "Materials Scientist - Machine Learning",
+ "skills": ["Python", "TensorFlow", "PyTorch", "C++"],
+ "location": "Mentor, OH",
+ "email": "xxx@stevens.edu"}</div>
+        <div class="note ok"><b>✅ What the LLM did:</b> one prompt replaced tokenization + POS + NER + regex email
+        extraction — and it adapted to <em>our</em> schema, not NLTK’s.</div>
+        <div class="note warn"><b>⚠️ But:</b> when the text doesn’t contain every field we ask for, the model may fill
+        the gap from its pretraining memory. That’s the next experiment.</div>
+      </div>
+      <details class="code"><summary>Show the code</summary>
+<pre><code>out = chat(
+    prompt=f"Extract entities from this job post. Return JSON with keys: "
+           f"company, job_title, skills (list), location, email.\n\nPOST:\n{job_post}",
+    system="You are an information-extraction assistant. Output ONLY valid JSON.",
+    fmt="json",
+)</code></pre></details>
+    </div>
+
+    <div class="card">
+      <h3>The hallucination experiment — same passage, three prompts</h3>
+      <p style="font-size:.9rem;color:var(--ink2)">This passage <em>hints at</em> famous specifics without stating a
+      single one — a deliberate trap. Run it three ways and compare field by field.</p>
+      <p class="cardlabel">The bait passage</p>
+      <div class="prompt-card">Apple's long-serving CEO delivered the keynote at the company's annual developer conference this week. The event was held at Apple's California headquarters campus and drew thousands of developers from around the world. Management also highlighted continued growth in services revenue during the most recent quarter and previewed new AI capabilities.</div>
+      <div class="runrow">
+        <div class="seg" id="hall-seg" role="group" aria-label="Choose a prompt condition">
+          <button aria-pressed="true" data-hall="strict">Strict prompt · llama3</button>
+          <button aria-pressed="false" data-hall="loose">Loose prompt · llama3</button>
+          <button aria-pressed="false" data-hall="looseapi">Loose prompt · claude-sonnet-4-5</button>
+        </div>
+      </div>
+      <div id="hall-view" style="margin-top:14px"></div>
+      <details class="code"><summary>Show the code — the two prompts</summary>
+<pre><code># STRICT — the guardrail
+"IMPORTANT: If a field is not explicitly stated in the passage, return null. "
+"Do NOT use outside knowledge. Do NOT guess."
+
+# LOOSE — no guardrail, plus a framing that primes completion
+"Complete the company briefing below. Fill in every field."</code></pre></details>
+    </div>
+  </div>
+
+  <!-- 2.2 -->
+  <div class="subpanel" data-subpanel="s2-2">
+    <div class="card">
+      <h3>Zero-shot sentiment vs. the supervised classifiers you just built</h3>
+      <p style="font-size:.9rem;color:var(--ink2)">Prior lecture: TF-IDF features + Naive Bayes / SVM / logistic
+      regression, labeled training data, F1/AUC. Now: no training data at all — describe the task in words, and run it
+      on the <em>same</em> 30-review Amazon sample from the word-vector exercise.</p>
+      <p class="cardlabel">The entire “model” — a system prompt</p>
+      <div class="prompt-card">Classify product reviews as POSITIVE or NEGATIVE.
+Respond with exactly one word: POSITIVE or NEGATIVE. Nothing else.</div>
+      <div class="runrow">
+        <button class="btn primary" id="run-clf">Classify all 30 reviews</button>
+        <span class="runnote" id="clf-status"></span>
+      </div>
+      <div class="reveal" id="rev-clf">
+        <div class="output mono" id="clf-stream"></div>
+        <div class="grid2" style="margin-top:14px">
+          <div>
+            <p class="cardlabel">Classification report (n = 30)</p>
+            <table class="clean">
+              <tr><th></th><th class="num">precision</th><th class="num">recall</th><th class="num">f1</th></tr>
+              <tr><td>POSITIVE</td><td class="num">1.00</td><td class="num">0.87</td><td class="num">0.93</td></tr>
+              <tr><td>NEGATIVE</td><td class="num">0.88</td><td class="num">1.00</td><td class="num">0.94</td></tr>
+              <tr><td style="color:var(--muted)">accuracy</td><td class="num"></td><td class="num"></td><td class="num"><b>0.93</b></td></tr>
+            </table>
+          </div>
+          <div>
+            <p class="cardlabel">Confusion matrix (rows = gold)</p>
+            <div class="cm" id="cm-grid"></div>
+          </div>
+        </div>
+        <div class="note ok"><b>✅ No training data, no features, still competitive.</b> This is the biggest shift from
+        traditional ML: the model is already “trained.” Your job becomes prompt design and <em>evaluation</em>,
+        not feature engineering.</div>
+        <div class="note warn"><b>⚠️ But LLMs are non-deterministic at higher temperatures</b> — that’s demo 2.3.</div>
+      </div>
+      <details class="code"><summary>Show the code</summary>
+<pre><code>def classify(text):
+    ans = chat(prompt=text, system=SYSTEM, temperature=0.0).upper()
+    if "POSITIVE" in ans: return "POSITIVE"
+    if "NEGATIVE" in ans: return "NEGATIVE"
+    return "UNKNOWN"
+
+for i, row in tqdm(enumerate(sample.itertuples()), total=len(sample)):
+    predictions.append(classify(row.text))
+
+print(classification_report(clean["gold"], clean["pred"],
+                            labels=["POSITIVE","NEGATIVE"]))</code></pre></details>
+    </div>
+  </div>
+
+  <!-- 2.3 -->
+  <div class="subpanel" data-subpanel="s2-3">
+    <div class="card">
+      <h3>Same input, same prompt — can you trust a single answer?</h3>
+      <p class="cardlabel">A deliberately ambiguous review</p>
+      <div class="prompt-card">“The product is great and functional, but the color is not what I expected.”</div>
+      <div class="runrow">
+        <div class="seg" id="temp-seg" role="group" aria-label="Temperature">
+          <button aria-pressed="true" data-temp="hot">temperature = 1.0</button>
+          <button aria-pressed="false" data-temp="cold">temperature = 0.0</button>
+        </div>
+        <span class="runnote">5 runs each — spot the difference</span>
+      </div>
+      <div class="runchips" id="temp-chips"></div>
+      <p class="runnote" id="temp-note" style="margin-top:10px"></p>
+      <div class="note warn" style="margin-top:14px"><b>Takeaway:</b> <code>temperature=0</code> gives (nearly)
+      deterministic output but can still drift across runs and model versions. For labeling pipelines, always run
+      multiple passes and vote — next demo.</div>
+    </div>
+  </div>
+
+  <!-- 2.4 -->
+  <div class="subpanel" data-subpanel="s2-4">
+    <div class="card">
+      <h3>Majority voting — the easy reliability upgrade</h3>
+      <p style="font-size:.9rem;color:var(--ink2)">Ten harder reviews, five votes each at <code>temperature=0</code>.
+      Watch the one case where a perfectly unanimous vote is still wrong.</p>
+      <div class="runrow"><button class="btn primary" data-run="rev-vote">Run 5-vote classification on 10 reviews</button></div>
+      <div class="reveal" id="rev-vote">
+        <div class="vote-head" style="display:grid;grid-template-columns:96px 110px 1fr;gap:10px;font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;padding-bottom:4px">
+          <span>Gold</span><span>Majority</span><span>The five votes</span>
+        </div>
+        <div id="vote-rows"></div>
+        <div class="note warn"><b>⚠️ Row 5:</b> five identical votes, all wrong. Unanimity measures the model’s
+        <em>consistency</em>, not its <em>accuracy</em> — a thread picked back up in §3.2.</div>
+      </div>
+      <details class="code"><summary>Show the code</summary>
+<pre><code>def classify_vote(text, n=5, temperature=0):
+    labels = []
+    for _ in range(n):
+        ans = chat(prompt=text, system=SYSTEM, temperature=temperature).strip().upper()
+        hits = re.findall(r"POSITIVE|NEGATIVE", ans)
+        labels.append(hits[0] if hits else "NEGATIVE")
+    return Counter(labels).most_common(1)[0][0], labels</code></pre></details>
+    </div>
+  </div>
+
+  <!-- 2.5 -->
+  <div class="subpanel" data-subpanel="s2-5">
+    <div class="card">
+      <h3>Topic labeling — interpretation, not clustering</h3>
+      <p style="font-size:.9rem;color:var(--ink2)">The LLM doesn’t replace LDA — it replaces the human who used to name
+      LDA’s clusters. First the naive version: keywords only.</p>
+      <div class="grid2">
+        <div>
+          <p class="cardlabel">A coherent topic (what LDA might produce)</p>
+          <p class="chips">
+            <span class="chip">election</span><span class="chip">vote</span><span class="chip">candidate</span><span class="chip">campaign</span><span class="chip">poll</span><span class="chip">democrat</span><span class="chip">republican</span><span class="chip">senator</span><span class="chip">debate</span><span class="chip">ballot</span>
+          </p>
+          <div class="runrow" style="margin-top:6px"><button class="btn primary" data-run="rev-top1">Label it</button></div>
+          <div class="reveal" id="rev-top1"><div class="output">coherent words → <b>“Election Politics”</b>  ✓ reasonable</div></div>
+        </div>
+        <div>
+          <p class="cardlabel">Pure noise — a junk cluster on purpose</p>
+          <p class="chips">
+            <span class="chip">car</span><span class="chip">recipe</span><span class="chip">dog</span><span class="chip">quantum</span><span class="chip">lemon</span><span class="chip">congress</span><span class="chip">socket</span><span class="chip">opera</span><span class="chip">xerox</span><span class="chip">pineapple</span>
+          </p>
+          <div class="runrow" style="margin-top:6px"><button class="btn primary" data-run="rev-top2">Label it</button></div>
+          <div class="reveal" id="rev-top2"><div class="output">noisy words → <b>“Food Recipe Book”</b>  ✗ confidently invented</div></div>
+        </div>
+      </div>
+      <div class="note warn"><b>⚠️ Failure mode: overconfident labeling.</b> Given meaningless keywords, the LLM still
+      produces a confident-sounding label. It will not volunteer “your topic model may be bad.”</div>
+    </div>
+
+    <div class="card">
+      <h3>The production fix: keywords + representative documents + a self-rating</h3>
+      <p style="font-size:.9rem;color:var(--ink2)">Give the model what a human analyst would get — a few documents near
+      the cluster centroid — and permission to report low coherence.</p>
+      <div class="runrow"><button class="btn primary" data-run="rev-clus">Label both clusters with the richer prompt</button></div>
+      <div class="reveal" id="rev-clus">
+        <div class="grid2">
+          <div>
+            <p class="cardlabel">Cluster A — battery complaints</p>
+            <div class="output">{"label": "Short Battery Life",
+ "description": "Devices draining quickly
+  or dying after a short period.",
+ "coherence": "high"}</div>
+            <p style="margin:8px 0 0"><span class="badge hi">coherence: HIGH</span></p>
+          </div>
+          <div>
+            <p class="cardlabel">Cluster B — deliberate junk</p>
+            <div class="output">{"label": "Miscellaneous News",
+ "description": "A collection of
+  unrelated news articles.",
+ "coherence": "low"}</div>
+            <p style="margin:8px 0 0"><span class="badge lo">coherence: LOW — the model pushed back</span></p>
+          </div>
+        </div>
+        <div class="note ok"><b>What works in production:</b> keep the LLM out of the clustering itself (LDA/BERTopic
+        stay deterministic); use a stronger model for the one-time labeling step; and never trust the coherence flag
+        alone — validate with a human pass.</div>
+      </div>
+      <details class="code"><summary>Show the code — the richer labeling prompt</summary>
+<pre><code>LABEL_TMPL = (
+  "Below are the top keywords and a few representative documents from one cluster.\n"
+  "Decide on a 2-4 word label and a one-sentence description.\n"
+  "Also rate the cluster's coherence: high / medium / low.\n"
+  "If keywords and documents do not share a clear common theme, set coherence to 'low' "
+  "and say so. It is acceptable to report low coherence — do not invent a theme.\n\n"
+  "TOP KEYWORDS: {kw}\n\nREPRESENTATIVE DOCUMENTS:\n- {docs}"
+)</code></pre></details>
+    </div>
+  </div>
+
+  <!-- 2.6 -->
+  <div class="subpanel" data-subpanel="s2-6">
+    <div class="card">
+      <h3>Aspect-based sentiment, structured for a pipeline</h3>
+      <p style="font-size:.9rem;color:var(--ink2)">Prior lecture: lexicon sentiment — sum the positive words, subtract
+      the negative ones. It misses negation, context, sarcasm. The LLM extracts <code>{aspect: sentiment}</code> pairs
+      directly, as JSON.</p>
+      <div class="prompt-card">“The phone battery lasts all day which I love, but the camera is truly awful in low light, and the price is ridiculous for what you get.”</div>
+      <div class="runrow"><button class="btn primary" data-run="rev-abs">Extract aspects (JSON mode)</button></div>
+      <div class="reveal" id="rev-abs">
+        <p style="margin:4px 0 0">
+          <span class="chip">battery <span class="badge pos">POSITIVE</span></span>
+          <span class="chip">camera <span class="badge neg">NEGATIVE</span></span>
+          <span class="chip">price <span class="badge neg">NEGATIVE</span></span>
+        </p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Harder: aspects the review never names</h3>
+      <p style="font-size:.9rem;color:var(--ink2)">This reviewer never says “size,” “waterproofing,” “durability,” or
+      “warranty” — they describe them obliquely. A bag-of-words extractor can’t catch these without a hand-built
+      ontology. <strong>Click each extracted aspect</strong> to see its evidence in the text.</p>
+      <p class="cardlabel">The review</p>
+      <div class="prompt-card evtext" id="implicit-text"></div>
+      <div class="runrow"><button class="btn primary" data-run="rev-imp">Extract implicit aspects</button></div>
+      <div class="reveal" id="rev-imp">
+        <div id="aspect-rows"></div>
+        <div class="note ok"><b>✅ The LLM names aspects the review never spells out</b> and ties each to supporting
+        evidence — impossible for lexicon pipelines without an ontology you build by hand.</div>
+        <div class="note warn"><b>⚠️ Watch out — aspect-name drift.</b> Across thousands of reviews the same concept
+        surfaces as “weight,” “portability,” “size,” “bulkiness.” For pipelines: pin an allowed-aspect vocabulary in
+        the prompt, or normalize afterward with an embedding-based merge.</div>
+      </div>
+      <details class="code"><summary>Show the code</summary>
+<pre><code>implicit_prompt = (
+  "Extract aspect-sentiment pairs from the product review. "
+  "Aspect names should reflect what the customer is actually talking about, "
+  "even if they don't use that exact word. "
+  "Return JSON: {aspects: [{aspect, sentiment, evidence}]}\n\nREVIEW:\n" + implicit_review
+)</code></pre></details>
+    </div>
+  </div>
+
+  <!-- 2.7 -->
+  <div class="subpanel" data-subpanel="s2-7">
+    <div class="card">
+      <h3>Three eras of “similar”: TF-IDF → MiniLM → LLM-era embeddings</h3>
+      <p style="font-size:.9rem;color:var(--ink2)">One query, seven documents, three methods. The query shares
+      <em>zero words</em> with the two documents that actually answer it.</p>
+      <p class="cardlabel">Query</p>
+      <div class="prompt-card">“portable power ran out too fast”</div>
+      <div class="runrow">
+        <div class="seg" id="emb-seg" role="group" aria-label="Embedding method">
+          <button aria-pressed="true" data-emb="tfidf">TF-IDF (2000s)</button>
+          <button aria-pressed="false" data-emb="mini">MiniLM (2019)</button>
+          <button aria-pressed="false" data-emb="nomic">nomic-embed-text (LLM-era)</button>
+        </div>
+      </div>
+      <div class="bars" id="emb-bars"></div>
+      <p class="runnote" id="emb-note"></p>
+      <div class="note warn"><b>⚠️ Never compare cosine values across encoders — only ranks.</b> Each method lives in a
+      different vector space: TF-IDF is sparse (no shared words ⇒ exactly 0), MiniLM unrelated-sentence baseline is
+      ≈0.0–0.4, nomic’s floor is ≈0.4. A 0.65 from one is not “better than” a 0.38 from another.</div>
+      <div class="note ok"><b>When to pick which:</b> TF-IDF still wins on exact-keyword domains (legal citations,
+      SKUs, code symbols) · MiniLM is the cheap, fast, offline default for business text · LLM-era embeddings win on
+      nuance, long documents, and multilingual content.</div>
+      <details class="code"><summary>Show the code — all three methods</summary>
+<pre><code># 1) TF-IDF cosine
+v = TfidfVectorizer().fit(docs + [query])
+tfidf_scores = cosine_similarity(v.transform([query]), v.transform(docs))[0]
+
+# 2) Sentence-transformer (BERT-era, 384-dim)
+st = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+st_scores = cosine_similarity([st.encode(query)], st.encode(docs))[0]
+
+# 3) LLM-era embedding via Ollama (768-dim)
+def embed(text):
+    return ollama.embeddings(model="nomic-embed-text", prompt=text)["embedding"]
+ollama_scores = [cos(embed(query), embed(d)) for d in docs]</code></pre></details>
+    </div>
+  </div>
+
+  <div class="nextrow"><button class="btn primary" data-goto="s3">§3 Where LLMs struggle →</button></div>
+</section>
+<!-- ================= §3 STRUGGLES ================= -->
+<section class="panel" data-panel="s3" role="tabpanel">
+  <h2>§3 · Where LLMs struggle — failures that look like successes</h2>
+  <p class="lede">Three subtle cases: sarcasm, self-consistency that isn’t correctness, and numerical scores that
+  follow the prompt instead of the data. Each one arrives <em>after</em> you’ve watched the model succeed in §2 —
+  that’s deliberate.</p>
+
+  <div class="subtabs" role="tablist" aria-label="Section 3 demos">
+    <button role="tab" data-sub="s3-1" aria-selected="true">3.1 Sarcasm &amp; irony</button>
+    <button role="tab" data-sub="s3-2">3.2 Consistency ≠ correctness</button>
+    <button role="tab" data-sub="s3-3">3.3 Unreliable ratings</button>
+  </div>
+
+  <!-- 3.1 -->
+  <div class="subpanel active" data-subpanel="s3-1">
+    <div class="card">
+      <h3>You first: label these five reviews</h3>
+      <p style="font-size:.9rem;color:var(--ink2)">Bojić et al. (2025, <em>Scientific Reports</em>) measured LLM–human
+      agreement across sentiment, political leaning, emotional intensity, and sarcasm — sarcasm shows the largest gap.
+      Commit to your own labels <em>before</em> any model answers. No changing your mind after.</p>
+      <div id="quiz-items"></div>
+      <div class="runrow">
+        <button class="btn primary" id="quiz-reveal" disabled>Reveal the model answers</button>
+        <span class="runnote" id="quiz-status">label all five to unlock</span>
+      </div>
+      <div class="reveal" id="rev-quiz">
+        <div class="note ok"><b>In this run:</b> both llama3 (8B, local) and claude-sonnet-4-5 (API) labeled all
+        five NEGATIVE — every one of these is sarcastic. When you run the notebook yourself, expect the small local
+        model to miss at least one of the subtler cases; the frontier model usually gets all five. If yours differs,
+        you’ve just seen model variance first-hand.</div>
+        <div class="note warn"><b>Rule of thumb:</b> prototype locally on llama3, validate the hard cases
+        on a frontier model, <em>then</em> decide which to deploy. Bigger models read subtext better — and cost more.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3.2 -->
+  <div class="subpanel" data-subpanel="s3-2">
+    <div class="card">
+      <h3>The agreement trap</h3>
+      <p style="font-size:.9rem;color:var(--ink2)">A tempting pipeline: run the LLM N times, the runs agree,
+      Cohen’s κ ≈ 1.0, declare the labels reliable. But a model can be <em>consistently wrong</em> — Bojić et al.
+      report LLMs beating humans on inter-rater reliability, which measures agreement, not accuracy.</p>
+      <div class="prompt-card">“The movie was so incredibly detailed that I managed to finish my entire 400-page book during the opening credits.”</div>
+      <div class="runrow"><button class="btn primary" data-run="rev-cons">Run the same input 5 times</button></div>
+      <div class="reveal" id="rev-cons">
+        <div class="runchips">
+          <span class="runchip">run 1 · NEGATIVE</span><span class="runchip">run 2 · NEGATIVE</span>
+          <span class="runchip">run 3 · NEGATIVE</span><span class="runchip">run 4 · NEGATIVE</span>
+          <span class="runchip">run 5 · NEGATIVE</span>
+        </div>
+        <p style="font-size:.88rem;margin:12px 0 0">majority: <b>NEGATIVE</b> · true label: <b>NEGATIVE</b> ·
+        self-agreement κ = <b>1.0</b> — and this time it happens to be right.</p>
+        <div class="note warn"><b>The trap:</b> if all 5 runs had returned POSITIVE, you would have perfect
+        self-consistency and perfect inaccuracy <em>at the same time</em>, and κ could not tell you. For any labeling
+        pipeline you plan to trust, compare against human-labeled examples — never against the model’s agreement with
+        itself.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3.3 -->
+  <div class="subpanel" data-subpanel="s3-3">
+    <div class="card">
+      <h3>“Just give each review a 0–10 score” — a common business ask</h3>
+      <p style="font-size:.9rem;color:var(--ink2)">Three reviews — a rave, a genuinely mixed one, a rant. Two tests,
+      both at <code>temperature=0</code>, five runs per condition (every condition returned five identical scores —
+      that’s the stability temperature 0 buys; the question is what the stable number <em>means</em>).</p>
+
+      <h4>Test 1 — same reviews, two rubrics</h4>
+      <div class="runrow" style="margin-top:6px">
+        <div class="seg" id="rubric-seg" role="group" aria-label="Rubric">
+          <button aria-pressed="true" data-rub="vague">Vague: “rate 0–10”</button>
+          <button aria-pressed="false" data-rub="anchored">Anchored NPS rubric</button>
+        </div>
+      </div>
+      <div id="rubric-view" style="margin-top:8px"></div>
+      <p class="runnote" id="rubric-note"></p>
+
+      <h4 style="margin-top:22px">Test 2 — same reviews, two reviewer personas</h4>
+      <p style="font-size:.88rem;color:var(--ink2);margin:0 0 4px">If the score measured the review, the persona
+      shouldn’t matter. Watch the mixed review.</p>
+      <div class="runrow" style="margin-top:6px"><button class="btn primary" data-run="rev-persona">Score as lenient vs. strict reviewer</button></div>
+      <div class="reveal" id="rev-persona">
+        <div class="legend">
+          <span class="key"><span class="sw" style="background:var(--s-blue)"></span>lenient persona</span>
+          <span class="key"><span class="sw" style="background:var(--s-green)"></span>strict persona</span>
+          <span class="key" style="margin-left:auto">gap</span>
+        </div>
+        <div id="persona-rows"></div>
+        <div class="note warn"><b>⚠️ The +3.0 gap on the mixed review is the failure mode in raw form.</b> The model
+        isn’t measuring the review; it’s producing “the number a lenient/strict reviewer would say.” An LLM has no
+        numerical measurement module — it picks the number that fits the surrounding words, including whatever persona
+        or rubric you added. Stability at temperature 0 only means it lands on the same plausible number every time.</div>
+        <div class="note ok"><b>Practical fixes:</b> anchor the rubric with one example per band · bucket to the
+        coarsest classes downstream can use (detractor/passive/promoter beats 0–10) · pin every prompt element that
+        touches the score and re-validate on any change · report an LLM ordinal <em>with the prompt that produced it</em>,
+        the way you’d report a survey answer with the survey question.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nextrow"><button class="btn primary" data-goto="s4">§4 Evaluation toolkit →</button></div>
+</section>
+
+<!-- ================= §4 EVALUATION ================= -->
+<section class="panel" data-panel="s4" role="tabpanel">
+  <h2>§4 · How do you know the LLM did a good job?</h2>
+  <p class="lede">Five measurements, all computed on the §2.2 classifier. Each answers a different question —
+  no single number is “the” evaluation.</p>
+
+  <div class="tiles">
+    <div class="tile"><div class="tl">Accuracy — is it right?</div><div class="tv">0.929</div><div class="ts">F1, positive class, vs. human gold</div></div>
+    <div class="tile"><div class="tl">Reliability — self-agreement</div><div class="tv">κ 1.000</div><div class="ts">run 1 vs. run 2, same prompt</div></div>
+    <div class="tile"><div class="tl">Agreement — vs. humans</div><div class="tv">κ 0.867</div><div class="ts">LLM labels vs. human gold</div></div>
+    <div class="tile"><div class="tl">Robustness — prompt rewrites</div><div class="tv">κ 0.851</div><div class="ts">v1 vs. v2 · (v1 vs. v3: 1.000)</div></div>
+    <div class="tile"><div class="tl">LLM-as-judge</div><div class="tv">4.88<span style="font-size:.9rem;color:var(--muted)">/5</span></div><div class="ts">mean Likert over 8 items</div></div>
+  </div>
+
+  <div class="card">
+    <p class="cardlabel">The toolkit, in one table</p>
+    <table class="clean">
+      <tr><th style="width:150px">Evaluation</th><th>What it answers</th><th>Method</th></tr>
+      <tr><td><b>Accuracy</b></td><td>Is the LLM right?</td><td>Compare to human gold labels: F1, <code>classification_report</code>, confusion matrix</td></tr>
+      <tr><td><b>Reliability</b></td><td>Does it agree with itself across runs?</td><td>Run N× at temperature 0; majority vote; inspect vote spread</td></tr>
+      <tr><td><b>Agreement</b></td><td>Does it agree with humans (or another LLM)?</td><td>Cohen’s κ between LLM labels and human labels</td></tr>
+      <tr><td><b>Robustness</b></td><td>Do small prompt rewrites flip answers?</td><td>2–3 paraphrased prompts; κ between runs — <em>different</em> from reliability</td></tr>
+      <tr><td><b>LLM-as-judge</b></td><td>Can a stronger model grade a weaker one?</td><td>G-Eval / pairwise / Likert — needs strong justification in academic work</td></tr>
+    </table>
+    <p style="font-size:.82rem;color:var(--ink2);margin:10px 0 0">Grounding in current evidence, worth reading:
+    Bojić et al. 2025 (LLMs beat humans on inter-rater reliability — agreement, not accuracy) and Bermejo et al. 2025
+    (GPT-4 / Claude 3.5 beat outsourced coders on 5 NLP tasks), both in <em>Scientific Reports</em>.</p>
+    <details class="code"><summary>Show the code — all five metrics</summary>
+<pre><code>f1_pos = f1_score(clean["gold"], clean["pred"], pos_label="POSITIVE")   # accuracy
+kappa_self  = cohen_kappa_score(run1, run2)          # reliability (same prompt, 2 passes)
+kappa_human = cohen_kappa_score(gold, pred)          # agreement with humans
+kappa_v12   = cohen_kappa_score(v1, v2)              # robustness (paraphrased prompts)
+judge = chat(f"REVIEW:\n{r}\n\nCLASSIFIER ANSWER: {p}", system=JUDGE)   # LLM-as-judge</code></pre></details>
+  </div>
+  <div class="nextrow"><button class="btn primary" data-goto="s5">§5 When to use an LLM →</button></div>
+</section>
+
+<!-- ================= §5 DECIDE ================= -->
+<section class="panel" data-panel="s5" role="tabpanel">
+  <h2>§5 · When to use an LLM for text analysis</h2>
+  <p class="lede">The lab’s closing synthesis: fit depends on <em>task shape</em> more than model choice.
+  Pick a task to see its verdict, or read the full table.</p>
+
+  <div class="card">
+    <p class="cardlabel">What’s your task?</p>
+    <div class="taskpick" id="task-pick"></div>
+    <div class="fitcard" id="fit-card">
+      <p style="margin:2px 0 6px"><span class="fit-flag" id="fit-flag"></span></p>
+      <div class="grid2">
+        <div><p class="cardlabel">Main strength</p><p style="font-size:.9rem;margin:0" id="fit-strength"></p></div>
+        <div><p class="cardlabel">Main pitfall</p><p style="font-size:.9rem;margin:0" id="fit-pitfall"></p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="cardlabel">The full guide</p>
+    <table class="clean" id="fit-table">
+      <tr><th>Task</th><th style="width:92px">LLM fit</th><th>Main strength</th><th>Main pitfall</th></tr>
+    </table>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <p class="cardlabel">What this means in practice</p>
+      <p style="font-size:.88rem;margin:0">If the task is a <b>strong fit ✅</b>, zero/few-shot prompting is probably
+      competitive with paid human annotation — effort shifts from “label more data” to “design better prompts and
+      evaluation.” If it’s <b>⚠️ moderate</b>, build a small expert-labeled validation set first (50–200 items) and
+      treat the LLM as a collaborator you audit, not an authority. Everywhere: structured JSON output,
+      temperature 0 for labeling, majority voting for high-stakes labels, version-pin the model — and never measure
+      quality by the model’s agreement with itself (§3.2).</p>
+    </div>
+    <div class="card">
+      <p class="cardlabel">Suggested workflow for the course project</p>
+      <table class="clean" style="margin:0">
+        <tr><td style="width:30px"><b>1</b></td><td>Prototype on ~10 examples in a notebook. Eyeball the outputs.</td></tr>
+        <tr><td><b>2</b></td><td>Manually label 50–200 items — this is your gold set.</td></tr>
+        <tr><td><b>3</b></td><td>Measure F1 or Cohen’s κ. Iterate on prompt, few-shot examples, JSON schema.</td></tr>
+        <tr><td><b>4</b></td><td>Still short? Fine-tune a smaller model, or fall back to traditional ML.</td></tr>
+      </table>
+    </div>
+  </div>
+  <p style="text-align:center;color:var(--muted);font-size:.9rem;margin:26px 0 6px">Good luck playing with LLMs! 🎓</p>
+</section>
+
+</main>
+
+<footer>
+  <p><strong>About this page.</strong> Companion to the BIA 660 (Web Mining) lab session <em>Introduction to Large
+  Language Models</em> at Stevens Institute of Technology. All model outputs are real, from an actual run of the lab —
+  rerun the <a href="bia660_intro_to_llm.html">Jupyter notebook</a> yourself and compare; where your results differ is
+  worth a second look.</p>
+  <p>Lab designed &amp; taught by Xiaoxuan (Cleo) Xu · PhD Candidate, Information Systems &amp; Analytics ·
+  <a href="mailto:xxu62@stevens.edu">xxu62@stevens.edu</a> · <a href="https://cleo-xu.github.io">cleo-xu.github.io</a></p>
+</footer>
+</div>
+<style>
+.evtext mark.on.mixy{background:var(--mix-bg);border-bottom-color:var(--mix)}
+.miniout{border:1px solid var(--hairline);border-radius:8px;padding:10px 12px;background:var(--code-bg);font-size:.78rem;font-family:ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap}
+.minihead{font-size:.78rem;font-weight:700;margin:0 0 6px;color:var(--ink2)}
+</style>
+<script>
+(function(){
+"use strict";
+var $ = function(s,el){ return (el||document).querySelector(s); };
+var $$ = function(s,el){ return Array.prototype.slice.call((el||document).querySelectorAll(s)); };
+function h(tag, cls, html){ var e=document.createElement(tag); if(cls)e.className=cls; if(html!=null)e.innerHTML=html; return e; }
+function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+/* ---------- theme ---------- */
+var themeMode = "auto";
+$("#themeBtn").addEventListener("click", function(){
+  themeMode = themeMode==="auto" ? "dark" : themeMode==="dark" ? "light" : "auto";
+  var root = document.documentElement;
+  if(themeMode==="auto"){ root.removeAttribute("data-theme"); } else { root.setAttribute("data-theme", themeMode); }
+  this.textContent = "◐ " + (themeMode==="auto" ? "Theme" : themeMode==="dark" ? "Dark" : "Light");
+});
+
+/* ---------- top tabs ---------- */
+function showSection(id){
+  $$(".tab").forEach(function(t){ t.setAttribute("aria-selected", t.dataset.sec===id ? "true":"false"); });
+  $$("section.panel").forEach(function(p){ p.classList.toggle("active", p.dataset.panel===id); });
+  var y = $("nav.tabs").offsetTop - 2;
+  if(window.scrollY > y) window.scrollTo(0, y);
+}
+$$(".tab").forEach(function(t){ t.addEventListener("click", function(){ showSection(t.dataset.sec); }); });
+document.addEventListener("click", function(e){
+  var g = e.target.closest("[data-goto]");
+  if(g){ showSection(g.dataset.goto); }
+});
+
+/* ---------- sub tabs ---------- */
+$$(".subtabs").forEach(function(bar){
+  var section = bar.closest("section");
+  $$("button", bar).forEach(function(b){
+    b.addEventListener("click", function(){
+      $$("button", bar).forEach(function(x){ x.setAttribute("aria-selected", x===b ? "true":"false"); });
+      $$(".subpanel", section).forEach(function(p){ p.classList.toggle("active", p.dataset.subpanel===b.dataset.sub); });
+    });
+  });
+});
+
+/* ---------- generic run buttons ---------- */
+document.addEventListener("click", function(e){
+  var b = e.target.closest("[data-run]");
+  if(!b || b.disabled) return;
+  var target = $("#"+b.dataset.run);
+  if(!target || target.classList.contains("show")) return;
+  var orig = b.innerHTML;
+  b.disabled = true; b.innerHTML = '<span class="spin"></span> running…';
+  setTimeout(function(){
+    b.innerHTML = orig; b.disabled = false;
+    target.classList.add("show");
+    b.blur();
+  }, 620);
+});
+
+/* ---------- §0 health check typing ---------- */
+var healthLines = [
+  "$ python -c \"import lab; lab.check_ollama()\"",
+  "Ollama daemon : OK  (3 model(s) installed)",
+  "  chat  'llama3' : FOUND",
+  "  embed 'nomic-embed-text' : FOUND",
+  "  ping reply    : 'Pong'  (7.27s)",
+  "",
+  "ready."
+];
+$("#run-health").addEventListener("click", function(){
+  var btn=this, out=$("#health-out");
+  if(btn.dataset.done) return;
+  btn.dataset.done="1"; btn.disabled=true; btn.innerHTML='<span class="spin"></span> running…';
+  $("#rev-health").classList.add("show");
+  out.textContent="";
+  var i=0;
+  (function next(){
+    if(i>=healthLines.length){ btn.disabled=false; btn.textContent="Health check complete ✓"; return; }
+    out.textContent += healthLines[i] + "\n";
+    i++; setTimeout(next, i===1 ? 500 : 260);
+  })();
+});
+
+/* ---------- §1 providers ---------- */
+var PROVIDERS = [
+  {id:"openai", label:"OpenAI", model:"gpt-4o-mini",
+   code:"from openai import OpenAI\nclient = OpenAI(api_key=load_api_key(\"key/openai_key.txt\"))\nr = client.chat.completions.create(\n    model=\"gpt-4o-mini\",\n    messages=[{\"role\": \"user\", \"content\": TRY_PROMPT}],\n    seed=42,\n)\nprint(r.choices[0].message.content)",
+   out:"Signal: Good, as all key financial metrics—net sales, operating income, and net income—show significant improvements year-over-year, indicating a strong performance."},
+  {id:"anthropic", label:"Anthropic", model:"claude-haiku-4-5",
+   code:"from anthropic import Anthropic\nclient = Anthropic(api_key=load_api_key(\"key/anthropic_key.txt\"))\nmsg = client.messages.create(\n    model=\"claude-haiku-4-5\",\n    max_tokens=200,\n    messages=[{\"role\": \"user\", \"content\": TRY_PROMPT}],\n)\nprint(msg.content[0].text)",
+   out:"Signal: **Good** – Strong double-digit revenue growth of 14% combined with operating income increasing 18% and net income rising 6% with improved EPS demonstrates robust profitability expansion and operational efficiency gains."},
+  {id:"google", label:"Google", model:"gemini-2.5-flash",
+   code:"from google import genai\nclient = genai.Client(api_key=load_api_key(\"key/google_key.txt\"))\nr = client.models.generate_content(\n    model=\"gemini-2.5-flash\",\n    contents=TRY_PROMPT,\n)\nprint(r.text)",
+   out:"Signal: Good, driven by substantial increases in net sales, operating income, and net income across the board."},
+  {id:"ollama", label:"Ollama (local, free)", model:"llama3",
+   code:"print(chat(TRY_PROMPT))   # no key, no cost, runs on the laptop",
+   out:"Signal: Good\n\nThe strong increase in net sales, operating income, and net income indicates a positive trend for the company, suggesting that its business is performing well and generating significant revenue and profitability growth."}
+];
+var provSeg = $("#provider-seg"), provView = $("#provider-view");
+PROVIDERS.forEach(function(p,i){
+  var b=h("button",null,p.label);
+  b.setAttribute("aria-pressed", i===0 ? "true":"false");
+  b.addEventListener("click", function(){
+    $$("button",provSeg).forEach(function(x){ x.setAttribute("aria-pressed","false"); });
+    b.setAttribute("aria-pressed","true");
+    renderProvider(p);
+  });
+  provSeg.appendChild(b);
+});
+function renderProvider(p){
+  provView.innerHTML="";
+  var head=h("p","minihead", esc(p.label)+" · <code>"+esc(p.model)+"</code>");
+  var out=h("div","output",esc(p.out));
+  var det=h("details","code"); det.innerHTML="<summary>Show the code</summary>";
+  var pre=h("pre"); pre.appendChild(h("code",null,esc(p.code))); det.appendChild(pre);
+  provView.appendChild(head); provView.appendChild(out); provView.appendChild(det);
+}
+renderProvider(PROVIDERS[0]);
+$("#compare-all").addEventListener("click", function(){
+  $$("button",provSeg).forEach(function(x){ x.setAttribute("aria-pressed","false"); });
+  provView.innerHTML="";
+  var grid=h("div","grid2");
+  PROVIDERS.forEach(function(p){
+    var cell=h("div");
+    cell.appendChild(h("p","minihead",esc(p.label)+" · <code>"+esc(p.model)+"</code>"));
+    cell.appendChild(h("div","miniout",esc(p.out)));
+    grid.appendChild(cell);
+  });
+  provView.appendChild(grid);
+  provView.appendChild(h("p","runnote","Same instruction, four consistent verdicts — compare tone, length, and how tightly each model followed the requested format."));
+});
+
+/* ---------- 2.1 hallucination ---------- */
+var HALL = {
+  strict: {
+    title:"Strict prompt · llama3 — “if not stated, return null. Do NOT use outside knowledge.”",
+    fields:[
+      ["company_name","\"Apple\"","doc"],
+      ["ceo_full_name","null","nul"],
+      ["headquarters_city","\"California\"","doc"],
+      ["most_recent_quarter_services_revenue_usd_billion","null","nul"],
+      ["total_fy2023_revenue_usd_billion","null","nul"],
+      ["approximate_worldwide_developer_attendance","\"thousands\"","doc"]
+    ],
+    note:{cls:"ok", html:"<b>The guardrail holds.</b> Every hinted-but-unstated field comes back <code>null</code> — the passage’s bait (long-serving CEO, California campus, services growth) goes untaken."}
+  },
+  loose: {
+    title:"Loose prompt · llama3 — “fill in every field,” no guardrail",
+    fields:[
+      ["company_name","\"Apple\"","doc"],
+      ["ceo_full_name","\"CEO (first name not mentioned)\"","odd"],
+      ["headquarters_city","\"California\"","doc"],
+      ["most_recent_quarter_services_revenue_usd_billion","null","nul"],
+      ["total_fy2023_revenue_usd_billion","null","nul"],
+      ["year_current_campus_opened","null","nul"],
+      ["approximate_worldwide_developer_attendance","\"thousands\"","doc"]
+    ],
+    note:{cls:"ok", html:"Even without the guardrail, the small local model mostly declined to guess — one garbled field, no fabricated numbers. Now try the stronger model."}
+  },
+  looseapi: {
+    title:"Loose prompt · claude-sonnet-4-5 — the stronger model “helps”",
+    fields:[
+      ["company_name","\"Apple\"","doc"],
+      ["ceo_full_name","\"Tim Cook\"","mem"],
+      ["headquarters_city","\"Cupertino\"","mem"],
+      ["most_recent_quarter_services_revenue_usd_billion","\"23.87\"","mem"],
+      ["total_fy2023_revenue_usd_billion","\"383.29\"","mem"],
+      ["year_current_campus_opened","\"2017\"","mem"],
+      ["approximate_worldwide_developer_attendance","\"6000\"","mem"]
+    ],
+    note:{cls:"warn", html:"<b>⚠️ Why this is dangerous:</b> six of seven values are not in the passage — they came from pretraining memory (the passage says only “California” and “thousands”). In a real pipeline the JSON looks identical either way, and downstream systems will treat the hallucinated numbers as real."}
+  }
+};
+var PROV_LABEL = {doc:"from passage", mem:"model memory ⚠", nul:"not stated → null", odd:"garbled, not fabricated"};
+var PROV_CLS = {doc:"doc", mem:"mem", nul:"nul", odd:"nul"};
+function renderHall(key){
+  var d=HALL[key], view=$("#hall-view");
+  view.innerHTML="";
+  view.appendChild(h("p","minihead",esc(d.title)));
+  var list=h("div","fieldlist");
+  d.fields.forEach(function(f){
+    var row=h("div","field-row");
+    row.appendChild(h("span","k",esc(f[0])));
+    var v=h("span","v"+(f[1]==="null"?" null":""),esc(f[1]));
+    row.appendChild(v);
+    row.appendChild(h("span","prov "+PROV_CLS[f[2]],esc(PROV_LABEL[f[2]])));
+    list.appendChild(row);
+  });
+  view.appendChild(list);
+  view.appendChild(h("div","note "+d.note.cls,d.note.html));
+}
+$$("#hall-seg button").forEach(function(b){
+  b.addEventListener("click", function(){
+    $$("#hall-seg button").forEach(function(x){ x.setAttribute("aria-pressed","false"); });
+    b.setAttribute("aria-pressed","true");
+    renderHall(b.dataset.hall);
+  });
+});
+renderHall("strict");
+
+/* ---------- 2.2 classification run ---------- */
+var CLF_EXAMPLES = [
+  "--- Example 1 ---\nText: Not much to say it was a true Cannon battery not a generic battery whi...\nPred: POSITIVE | Gold: POSITIVE",
+  "--- Example 2 ---\nText: This is totally different from the \"classic albums\" series of DVDs tha...\nPred: NEGATIVE | Gold: NEGATIVE",
+  "--- Example 3 ---\nText: I believe the pet groomer would be better if it were smaller as it is ...\nPred: NEGATIVE | Gold: NEGATIVE"
+];
+$("#run-clf").addEventListener("click", function(){
+  var btn=this;
+  if(btn.dataset.done) return;
+  btn.dataset.done="1"; btn.disabled=true;
+  var status=$("#clf-status"), stream=$("#clf-stream");
+  $("#rev-clf").classList.add("show");
+  stream.textContent="";
+  var i=0, shown=0;
+  var t=setInterval(function(){
+    i++;
+    status.innerHTML='<span class="spin"></span> classifying… '+i+"/30";
+    if(i===3||i===12||i===22){
+      stream.textContent += (shown?"\n\n":"") + CLF_EXAMPLES[shown]; shown++;
+    }
+    if(i>=30){
+      clearInterval(t);
+      stream.textContent += "\n\n==============================\nLLM prediction done in 18.2s  (avg 0.61s/row)\nzero-shot accuracy: 93.3%   (0 unparsed outputs)";
+      status.textContent="done — 30/30 in 18.2s";
+      btn.textContent="Classified ✓"; btn.disabled=true;
+      buildCM();
+    }
+  }, 78);
+});
+function buildCM(){
+  var g=$("#cm-grid");
+  if(g.dataset.done) return; g.dataset.done="1";
+  var cells=[
+    ["h",""],["h","pred POSITIVE"],["h","pred NEGATIVE"],
+    ["h","gold POSITIVE"],["c",13,"#1c5cab","#fff","true pos"],["c",2,"#86b6ef","#0b0b0b","missed pos"],
+    ["h","gold NEGATIVE"],["c",0,"#cde2fb","#0b0b0b","false alarm"],["c",15,"#0d366b","#fff","true neg"]
+  ];
+  cells.forEach(function(c){
+    if(c[0]==="h"){ g.appendChild(h("div","h",esc(c[1]))); }
+    else{
+      var el=h("div","cell","<b>"+c[1]+"</b><span>"+esc(c[4])+"</span>");
+      el.style.background=c[2]; el.style.color=c[3];
+      g.appendChild(el);
+    }
+  });
+}
+
+/* ---------- 2.3 temperature ---------- */
+var TEMP = {
+  hot: {runs:["NEGTIV","NEGATIVE","NEGATIVE","NEGATIVE","NEGATIVE"],
+        note:"Run 1 came back “NEGTIV” — a malformed label your parser has to catch. At temperature 1.0 even a one-word answer can wobble."},
+  cold:{runs:["NEGATIVE","NEGATIVE","NEGATIVE","NEGATIVE","NEGATIVE"],
+        note:"Five identical, parseable answers. Deterministic — for this model version, on this day."}
+};
+function renderTemp(key){
+  var box=$("#temp-chips"); box.innerHTML="";
+  TEMP[key].runs.forEach(function(r,i){
+    var c=h("span","runchip"+(r==="NEGTIV"?" bad":""),"run "+(i+1)+" · "+esc(r));
+    box.appendChild(c);
+  });
+  $("#temp-note").textContent=TEMP[key].note;
+}
+$$("#temp-seg button").forEach(function(b){
+  b.addEventListener("click", function(){
+    $$("#temp-seg button").forEach(function(x){ x.setAttribute("aria-pressed","false"); });
+    b.setAttribute("aria-pressed","true"); renderTemp(b.dataset.temp);
+  });
+});
+renderTemp("hot");
+
+/* ---------- 2.4 votes ---------- */
+var VOTES=[
+  ["POSITIVE","POSITIVE","PPPPP"],["POSITIVE","POSITIVE","PPPPP"],
+  ["NEGATIVE","NEGATIVE","NNNNN"],["NEGATIVE","NEGATIVE","NNNNN"],
+  ["POSITIVE","NEGATIVE","NNNNN"],["NEGATIVE","NEGATIVE","NNNNN"],
+  ["NEGATIVE","NEGATIVE","NNNNN"],["POSITIVE","POSITIVE","PPPPP"],
+  ["NEGATIVE","NEGATIVE","NNNNN"],["NEGATIVE","NEGATIVE","NNNNN"]
+];
+(function(){
+  var box=$("#vote-rows");
+  VOTES.forEach(function(v){
+    var miss=v[0]!==v[1];
+    var row=h("div","vote-row"+(miss?" miss":""));
+    row.appendChild(h("span",null,'<span class="badge '+(v[0]==="POSITIVE"?"pos":"neg")+'">'+v[0]+"</span>"));
+    row.appendChild(h("span",null,'<span class="badge '+(v[1]==="POSITIVE"?"pos":"neg")+'">'+v[1]+"</span>"+(miss?" ✗":"")));
+    var dots=h("span","dots");
+    v[2].split("").forEach(function(ch){ dots.appendChild(h("span","dot "+(ch==="P"?"p":"n"),"")); });
+    row.appendChild(dots);
+    box.appendChild(row);
+  });
+})();
+
+/* ---------- 2.6 implicit aspects ---------- */
+var IMP_TEXT = "I bought this for hiking. It's a beast — it barely fits in the top compartment of my backpack and my shoulders feel it after the first mile. The shell takes a downpour like it's nothing, but I've already had two zippers fail in three months. Customer service replaced one zipper no questions asked, the other one I'm still arguing about.";
+var ASPECTS=[
+  {a:"packability", s:"negative", ev:"it barely fits in the top compartment of my backpack"},
+  {a:"comfort", s:"negative", ev:"my shoulders feel it after the first mile"},
+  {a:"water resistance", s:"positive", ev:"The shell takes a downpour like it's nothing"},
+  {a:"durability", s:"negative", ev:"I've already had two zippers fail in three months"},
+  {a:"customer service", s:"mixed", ev:"Customer service replaced one zipper no questions asked, the other one I'm still arguing about"}
+];
+(function(){
+  var html=esc(IMP_TEXT);
+  ASPECTS.forEach(function(x,i){
+    var e=esc(x.ev);
+    html=html.replace(e,'<mark data-ev="'+i+'">'+e+"</mark>");
+  });
+  $("#implicit-text").innerHTML=html;
+  var box=$("#aspect-rows");
+  var head=h("div",null,'<div style="display:grid;grid-template-columns:150px 90px 1fr;gap:10px;font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;padding:0 8px 4px">'+
+    "<span>Aspect</span><span>Sentiment</span><span>Evidence (click a row to highlight)</span></div>");
+  box.appendChild(head);
+  ASPECTS.forEach(function(x,i){
+    var cls=x.s==="positive"?"pos":x.s==="negative"?"neg":"mix";
+    var row=h("div","aspect-row");
+    row.innerHTML='<span class="a">'+esc(x.a)+'</span><span><span class="badge '+cls+'">'+x.s.toUpperCase()+"</span></span>"+
+      '<span class="e">“'+esc(x.ev.slice(0,60))+(x.ev.length>60?"…":"")+"”</span>";
+    row.addEventListener("click", function(){
+      var was=row.classList.contains("on");
+      $$(".aspect-row",box).forEach(function(r){ r.classList.remove("on"); });
+      $$("#implicit-text mark").forEach(function(m){ m.className=""; });
+      if(!was){
+        row.classList.add("on");
+        var m=$('#implicit-text mark[data-ev="'+i+'"]');
+        if(m){ m.className="on"+(x.s==="negative"?" negx":x.s==="mixed"?" mixy":""); }
+      }
+    });
+    box.appendChild(row);
+  });
+})();
+
+/* ---------- 2.7 embeddings ---------- */
+var DOCS=[
+  {t:"The laptop battery died within an hour.", best:true,  tfidf:0, mini:0.379, nomic:0.648},
+  {t:"This phone drains from 100% to 20% after a Netflix episode.", best:true, tfidf:0, mini:0.195, nomic:0.520},
+  {t:"Ships broke down on arrival, totally unusable.", best:false, tfidf:0, mini:0.237, nomic:0.485},
+  {t:"Excellent camera quality in low light.", best:false, tfidf:0, mini:0.012, nomic:0.458},
+  {t:"Amazing service, the staff were so helpful.", best:false, tfidf:0, mini:0.061, nomic:0.422},
+  {t:"Food at this restaurant was bland and overpriced.", best:false, tfidf:0, mini:0.075, nomic:0.415},
+  {t:"The hotel room smelled like smoke.", best:false, tfidf:0, mini:0.106, nomic:0.412}
+];
+var EMB_NOTE={
+  tfidf:"Every score is exactly 0.000 — the query shares no words with any document, so the two documents that actually answer it (◆) are completely invisible to TF-IDF.",
+  mini:"Both true matches (◆) surface. MiniLM — a 384-dim, 2019-era sentence encoder running on CPU — separates them from the noise on meaning alone.",
+  nomic:"Both true matches (◆) on top. Note the higher baseline (≈0.41 even for unrelated sentences) — that is this space’s floor, not signal. Compare ranks, never raw cosines."
+};
+function renderEmb(key){
+  var box=$("#emb-bars"); box.innerHTML="";
+  var sorted=DOCS.slice().sort(function(a,b){ return b[key]-a[key]; });
+  var mx=Math.max.apply(null,sorted.map(function(d){return d[key];})) || 1;
+  sorted.forEach(function(d){
+    var row=h("div","bar-row"+(d.best?" best":""));
+    row.appendChild(h("span","bar-label",(d.best?"◆ ":"")+esc(d.t)));
+    var tr=h("div","bar-track"), f=h("div","bar-fill");
+    tr.appendChild(f); row.appendChild(tr);
+    row.appendChild(h("span","bar-val",d[key].toFixed(3)));
+    row.querySelector(".bar-label").title=d.t;
+    box.appendChild(row);
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){
+      f.style.width=(d[key]<=0?0:(d[key]/mx*100))+"%";
+    });});
+  });
+  $("#emb-note").textContent=EMB_NOTE[key];
+}
+$$("#emb-seg button").forEach(function(b){
+  b.addEventListener("click", function(){
+    $$("#emb-seg button").forEach(function(x){ x.setAttribute("aria-pressed","false"); });
+    b.setAttribute("aria-pressed","true"); renderEmb(b.dataset.emb);
+  });
+});
+renderEmb("tfidf");
+
+/* ---------- 3.1 quiz ---------- */
+var QUIZ=[
+  "Oh GREAT, another software update that crashed my laptop. Exactly what I needed before my presentation.",
+  "Wow, a 30-minute wait on hold — truly a premium customer experience.",
+  "The movie was so incredibly detailed that I managed to finish my entire 400-page book during the opening credits.",
+  "I love how the new update removed the only feature I actually used.",
+  "The hotel met my expectations. My expectations were rock bottom."
+];
+var guesses=new Array(QUIZ.length).fill(null);
+(function(){
+  var box=$("#quiz-items");
+  QUIZ.forEach(function(q,i){
+    var item=h("div","quiz-item");
+    item.appendChild(h("p","quiz-text","“"+esc(q)+"”"));
+    var ctrl=h("div","quiz-ctrl");
+    ["POSITIVE","NEGATIVE"].forEach(function(lab){
+      var b=h("button","guess "+(lab==="POSITIVE"?"p":"n"),lab);
+      b.setAttribute("aria-pressed","false");
+      b.addEventListener("click", function(){
+        guesses[i]=lab;
+        $$(".guess",ctrl).forEach(function(x){ x.setAttribute("aria-pressed", x===b?"true":"false"); });
+        var done=guesses.filter(Boolean).length;
+        $("#quiz-status").textContent = done<QUIZ.length ? done+"/5 labeled" : "all labeled — reveal!";
+        $("#quiz-reveal").disabled = done<QUIZ.length;
+      });
+      ctrl.appendChild(b);
+    });
+    var ans=h("div","model-ans");
+    ans.innerHTML='<span>→</span><span>you: <b class="yg"></b></span>'+
+      '<span>llama3 (8B): <span class="badge neg">NEGATIVE</span></span>'+
+      '<span>claude-sonnet-4-5: <span class="badge neg">NEGATIVE</span></span>'+
+      '<span>truth: <span class="badge neg">NEGATIVE</span> (sarcastic)</span>';
+    ctrl.appendChild(ans);
+    item.appendChild(ctrl);
+    box.appendChild(item);
+  });
+  $("#quiz-reveal").addEventListener("click", function(){
+    var right=0;
+    $$(".quiz-item",box).forEach(function(item,i){
+      var ok=guesses[i]==="NEGATIVE"; if(ok) right++;
+      var yg=$(".yg",item);
+      yg.textContent=guesses[i]+(ok?" ✓":" ✗");
+      yg.style.color=ok?"var(--ok-edge)":"var(--neg)";
+      $(".model-ans",item).classList.add("show");
+    });
+    $("#quiz-status").textContent="you: "+right+"/5 · llama3: 5/5 · claude-sonnet-4-5: 5/5 (this run)";
+    $("#rev-quiz").classList.add("show");
+    this.disabled=true;
+  });
+})();
+
+/* ---------- 3.3 rubrics & personas ---------- */
+var RUBRIC={
+  vague:{rave:10,mixed:6,rant:1,
+    note:"Vague rubric, temperature 0: five identical runs per review — perfectly stable. Remember these numbers, then switch rubrics."},
+  anchored:{rave:10,mixed:7,rant:0,
+    note:"Anchored NPS rubric, same reviews: the mixed review moves 6 → 7 and the rant 1 → 0. Stable within a rubric — but the “measurement” tracks the rubric’s wording."}
+};
+function renderRubric(key){
+  var d=RUBRIC[key], v=$("#rubric-view"); v.innerHTML="";
+  [["rave","Best purchase of the year…"],["mixed","$200 headphones: great sound, cracked hinge, 22h of advertised 30…"],["rant","Total garbage. Stopped working after a week…"]].forEach(function(r){
+    var row=h("div",null,null);
+    row.style.cssText="display:grid;grid-template-columns:64px 1fr;gap:12px;align-items:center;padding:7px 0;border-bottom:1px solid var(--grid)";
+    row.appendChild(h("span","pair-name",r[0]));
+    var chips=h("span","runchips"); chips.style.marginTop="0";
+    for(var i=0;i<5;i++){ chips.appendChild(h("span","runchip",String(d[r[0]]))); }
+    var wrap=h("div"); wrap.appendChild(chips);
+    wrap.appendChild(h("div","runnote",r[1]));
+    row.appendChild(wrap);
+    v.appendChild(row);
+  });
+  $("#rubric-note").textContent=d.note;
+}
+$$("#rubric-seg button").forEach(function(b){
+  b.addEventListener("click", function(){
+    $$("#rubric-seg button").forEach(function(x){ x.setAttribute("aria-pressed","false"); });
+    b.setAttribute("aria-pressed","true"); renderRubric(b.dataset.rub);
+  });
+});
+renderRubric("vague");
+
+var PERSONA=[
+  {name:"rave", L:10, S:9, gap:"+1.0"},
+  {name:"mixed", L:7, S:4, gap:"+3.0", hot:true},
+  {name:"rant", L:2, S:1, gap:"+1.0"}
+];
+(function(){
+  var box=$("#persona-rows");
+  PERSONA.forEach(function(p){
+    var row=h("div","pair-row");
+    row.appendChild(h("span","pair-name",p.name));
+    var tr=h("div","pair-track");
+    var a=h("div","pair-bar a"); a.innerHTML='<span class="v">'+p.L+"</span>";
+    var b=h("div","pair-bar b"); b.innerHTML='<span class="v">'+p.S+"</span>";
+    tr.appendChild(a); tr.appendChild(b); row.appendChild(tr);
+    var g=h("span","gapcell",p.gap);
+    if(p.hot){ g.style.color="var(--warn-edge)"; g.innerHTML=p.gap+" ⚠"; }
+    row.appendChild(g);
+    box.appendChild(row);
+    setTimeout(function(){ a.style.width=(p.L/10*82)+"%"; b.style.width=(p.S/10*82)+"%"; },80);
+  });
+})();
+
+/* ---------- §5 fit ---------- */
+var FIT=[
+  {t:"Sentiment / topic / spam classification", full:"Classification with clear, well-defined classes (sentiment, topic, spam)", fit:1, s:"Zero/few-shot — no training data needed", p:"Boundary cases drift; vote across runs"},
+  {t:"NER & information extraction", full:"Named entity recognition & information extraction", fit:1, s:"Contextual, flexible schemas", p:"May fabricate absent fields — require “null if missing”"},
+  {t:"Structured output (JSON)", full:"Structured output to a schema (JSON)", fit:1, s:"Format enforcement makes it pipeline-ready", p:"Vocabulary drift without examples"},
+  {t:"Summarization & paraphrase", full:"Summarization, paraphrase", fit:1, s:"Core generation capability", p:"Can add details not in source — always check"},
+  {t:"Topic labeling", full:"Topic labeling from keyword lists", fit:1, s:"Compresses keyword lists into readable names", p:"Invents a confident label on incoherent input"},
+  {t:"Semantic search (embeddings)", full:"Semantic search & similarity (embeddings)", fit:1, s:"Captures meaning beyond shared words", p:"Domain shift degrades quality"},
+  {t:"Fine-grained subjective ratings", full:"Subjective or fine-grained categorization (nuanced emotion, intensity)", fit:0, s:"Can approximate a well-anchored rubric", p:"Humans also disagree — drift across runs (§3.3)"},
+  {t:"Sarcasm & coded context", full:"Tasks requiring implicit or culturally-coded context (sarcasm, irony)", fit:0, s:"Larger frontier models improve noticeably (§3.1)", p:"Small local models miss the subtle cases"},
+  {t:"Legal / medical / financial coding", full:"Domain-specialty coding (legal, medical, financial)", fit:0, s:"General reading comprehension", p:"Pretraining-exposure dependent — consider fine-tuning or RAG"}
+];
+(function(){
+  var pick=$("#task-pick"), table=$("#fit-table");
+  FIT.forEach(function(f,i){
+    var b=h("button",null,esc(f.t));
+    b.setAttribute("aria-pressed","false");
+    b.addEventListener("click", function(){
+      $$("button",pick).forEach(function(x){ x.setAttribute("aria-pressed", x===b?"true":"false"); });
+      $("#fit-card").classList.add("show");
+      $("#fit-flag").innerHTML = f.fit ? "✅ Strong fit — <span style='font-weight:400'>"+esc(f.full)+"</span>"
+                                       : "⚠️ Moderate fit — <span style='font-weight:400'>"+esc(f.full)+"</span>";
+      $("#fit-strength").textContent=f.s;
+      $("#fit-pitfall").textContent=f.p;
+    });
+    pick.appendChild(b);
+    var tr=h("tr",null,"<td>"+esc(f.full)+"</td><td>"+(f.fit?"✅ strong":"⚠️ moderate")+"</td><td>"+esc(f.s)+"</td><td>"+esc(f.p)+"</td>");
+    table.appendChild(tr);
+  });
+  $$("button",pick)[0].click();
+})();
+
+})();
+</script>
+</body>
+</html>
